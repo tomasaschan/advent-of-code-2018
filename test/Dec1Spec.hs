@@ -1,6 +1,7 @@
 module Dec1Spec where
 
   import Test.Hspec
+  import Data.Set
 
   import Dec1
 
@@ -28,4 +29,4 @@ module Dec1Spec where
         solveB ["+7", "+7", "-2", "-7", "-4"] `shouldBe` "14"
     context "addP" $ do
       it "addP 0 [] [-3..3] returns -6" $ do
-        addP 0 [] [-3..3] `shouldBe` -6
+        addP 0 empty [-3..3] `shouldBe` -6

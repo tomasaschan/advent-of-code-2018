@@ -5,6 +5,8 @@ module Dec1 (
 )
 where
 
+  import Data.Set (Set, empty, insert, member, singleton)
+
   parseFreq :: String -> Int
   parseFreq ('+':s) = read s
   parseFreq s = read s
@@ -12,12 +14,12 @@ where
   solveA :: [String] -> String
   solveA = show . sum . (map parseFreq)
 
-  addP :: Int -> [Int] -> [Int] -> Int
+  addP :: Int -> Set Int -> [Int] -> Int
   addP current seen (this:rest)
-    | current + this `elem` seen = current + this
+    | member (current + this) seen = current + this
     | otherwise =
-      addP next (next:seen) rest where
+      addP next (insert next seen) rest where
         next = current + this
 
   solveB :: [String] -> String
-  solveB = show . addP 0 [0] . cycle . map parseFreq
+  solveB = show . addP 0 (singleton 0) . cycle . map parseFreq
