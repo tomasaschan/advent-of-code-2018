@@ -23,7 +23,10 @@ extra-deps:
   - primitive-0.6.4.0
   - erf-2.0.0.0
   - split-0.2.3.3
-  - containers-0.6.0.1
+  - containers-0.5.11.0
+  - regex-compat-0.95.1
+  - regex-base-0.93.2
+  - regex-posix-0.95.2
 flags: {}
 extra-package-dbs: []
 allow-newer: true

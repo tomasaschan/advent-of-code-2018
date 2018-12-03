@@ -4,6 +4,7 @@ import Text.Printf
 import qualified Aoc2017.Dec1
 import qualified Dec1
 import qualified Dec2
+import qualified Dec3
 
 solver :: String -> Maybe ([String] -> String)
 solver "2017-1a" = Just Aoc2017.Dec1.solveA
@@ -12,4 +13,5 @@ solver "1a" = Just Dec1.solveA
 solver "1b" = Just Dec1.solveB
 solver "2a" = Just Dec2.solveA
 solver "2b" = Just Dec2.solveB
+solver "3a" = Just Dec3.solveA
 solver _ = Nothing
