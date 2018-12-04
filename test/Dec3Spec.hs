@@ -3,15 +3,25 @@ module Dec3Spec where
   import Test.Hspec
   import Data.Map
   import Data.Maybe
-  import Data.List
 
   import Dec3
 
   spec :: Spec
   spec = describe "3 Dec" $ do
-    context "parsing" $ do
-      it "correctly parses #123 @ 3,2: 5x4" $ do
-        parse "#123 @ 3,2: 5x4" `shouldBe` (Just $ Claim { left = 3, top = 2, width = 5, height = 4 })
+    context "parsing #123 @ 3,2: 5x4" $ do
+      let input = "#123 @ 3,2: 5x4"
+      let parsed = fromJust $ parse input
+      let correct = Claim { id' = "123", left = 3, top = 2, width = 5, height = 4 }
+      it "id matches" $ do
+        id' parsed `shouldBe` id' correct
+      it "left matches" $ do
+        left parsed `shouldBe` left correct
+      it "top matches" $ do
+        top parsed `shouldBe` top correct
+      it "width matches" $ do
+        width parsed `shouldBe` width correct
+      it "height matches" $ do
+        height parsed `shouldBe` height correct
     context "updating claims map" $ do
       context "correctly inserts a 1" $ do
         it "in an empty fabric" $ do
@@ -25,13 +35,13 @@ module Dec3Spec where
         claim1 fabric (2,1) `shouldBe` fromList [((2,1),2)]
     context "interpreting claims" $ do
       it "yields a correct list of indices for a claim" $ do
-        squares Claim { left = 3, top = 2, width = 5, height = 4 } `shouldBe` [
+        squares Claim { id' = "", left = 3, top = 2, width = 5, height = 4 } `shouldBe` [
           (3,2), (4,2), (5,2), (6,2), (7,2),
           (3,3), (4,3), (5,3), (6,3), (7,3),
           (3,4), (4,4), (5,4), (6,4), (7,4),
           (3,5), (4,5), (5,5), (6,5), (7,5)]
       it "yields a correct fabric for a claim" $ do
-        fabric Claim { left = 3, top = 2, width = 5, height = 4 } `shouldBe` fromList [
+        fabric Claim { id' = "", left = 3, top = 2, width = 5, height = 4 } `shouldBe` fromList [
           ((3,2), 1), ((4,2), 1), ((5,2), 1), ((6,2), 1), ((7,2), 1),
           ((3,3), 1), ((4,3), 1), ((5,3), 1), ((6,3), 1), ((7,3), 1),
           ((3,4), 1), ((4,4), 1), ((5,4), 1), ((6,4), 1), ((7,4), 1),

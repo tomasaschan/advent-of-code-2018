@@ -1,14 +1,16 @@
 module Dec3 where
 
-  import Text.Regex (Regex, mkRegex, matchRegex)
   import Data.Map (Map, alter, empty, toList, lookup, unionWith, elems)
   import qualified Data.List as List (foldr)
   import Data.Maybe (catMaybes)
+  import qualified Parse
+  import Debug.Trace
 
   solveA :: [String] -> String
   solveA = show . countOverlaps . combine . map fabric . catMaybes . map parse
 
   data Claim = Claim {
+    id' :: String,
     top :: Int,
     left :: Int,
     width :: Int,
@@ -43,28 +45,39 @@ module Dec3 where
   fabric :: Claim -> Fabric
   fabric = foldl claim1 fempty . squares
 
-  pattern :: Regex
-  pattern = mkRegex "#([[:digit:]]+) @ ([[:digit:]]+),([[:digit:]]+): ([[:digit:]]+)x([[:digit:]]+)"
 
+  getClaimParts :: String -> Parse.Parser String
+  getClaimParts input =
+    Parse.drop '#' input
+    >>= Parse.digits
+    >>= Parse.drop ' '
+    >>= Parse.drop '@'
+    >>= Parse.drop ' '
+    >>= Parse.digits
+    >>= Parse.drop ','
+    >>= Parse.digits
+    >>= Parse.drop ':'
+    >>= Parse.drop ' '
+    >>= Parse.digits
+    >>= Parse.drop 'x'
+    >>= Parse.digits
+  
   createClaim :: [String] -> Maybe Claim
-  createClaim [id, left, top, width, height] = Just $ Claim {
+  createClaim [id', left, top, width, height] = Just $ Claim {
+    id' = id',
     top = read top,
     left = read left,
     width = read width,
     height = read height
   }
-  createClaim _ = Nothing
+  createClaim input = trace ("failed to create claim from input: " ++ show input) Nothing
 
   parse :: String -> Maybe Claim
-  parse input = do
-    matches <- matchRegex pattern input
-    claim <- createClaim matches
-    return claim
+  parse = createClaim . Parse.getParts . getClaimParts
 
   toc :: Maybe Int -> String
   toc (Just i) = show i
   toc Nothing = "."
-
 
   display :: Fabric -> (Int, Int) -> String
   display fabric (width, height) =
