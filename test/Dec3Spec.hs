@@ -77,3 +77,8 @@ module Dec3Spec where
           let correct = "4"
           let answer = solveA input
           answer `shouldBe` correct
+      describe "for b" $ do
+        it "id 3 is the only non-overlapping claim" $ do
+          let correct = "3"
+          let answer = solveB input
+          answer `shouldBe` correct

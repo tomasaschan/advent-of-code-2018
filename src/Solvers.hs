@@ -14,4 +14,5 @@ solver "1b" = Just Dec1.solveB
 solver "2a" = Just Dec2.solveA
 solver "2b" = Just Dec2.solveB
 solver "3a" = Just Dec3.solveA
+solver "3b" = Just Dec3.solveB
 solver _ = Nothing

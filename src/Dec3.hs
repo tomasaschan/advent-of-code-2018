@@ -3,11 +3,15 @@ module Dec3 where
   import Data.Map (Map, alter, empty, toList, lookup, unionWith, elems)
   import qualified Data.List as List (foldr)
   import Data.Maybe (catMaybes)
+  import Data.List (nub)
   import qualified Parse
   import Debug.Trace
 
   solveA :: [String] -> String
   solveA = show . countOverlaps . combine . map claimFabric . catMaybes . map parse
+
+  solveB :: [String] -> String
+  solveB = findNonOverlapping . combine . map claimFabric . catMaybes . map parse
 
   data Claim = Claim {
     id' :: String,
@@ -23,6 +27,17 @@ module Dec3 where
 
   countOverlaps :: Fabric -> Int
   countOverlaps = length . filter (\c -> length c > 1) . elems . extract
+
+  findNonOverlapping :: Fabric -> String
+  findNonOverlapping fabric =
+    let
+      findOverlapping = nub . concat . filter ((<) 1 . length) . elems . extract
+      findAll = nub . concat . elems . extract
+      overlapped = findOverlapping fabric
+      all = findAll fabric
+      isOutlier x = notElem x overlapped
+      outliers = filter isOutlier all
+    in head outliers
 
   extract :: Fabric -> Map Square [Id]
   extract (Fabric d) = d
