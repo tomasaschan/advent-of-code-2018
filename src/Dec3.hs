@@ -7,7 +7,7 @@ module Dec3 where
   import Debug.Trace
 
   solveA :: [String] -> String
-  solveA = show . countOverlaps . combine . map fabric . catMaybes . map parse
+  solveA = show . countOverlaps . combine . map claimFabric . catMaybes . map parse
 
   data Claim = Claim {
     id' :: String,
@@ -17,34 +17,48 @@ module Dec3 where
     height :: Int
   } deriving (Show, Eq)
 
-  type Square = (Int,Int)
-  type Fabric = (Map Square Int)
+  type Square = (Int, Int)
+  type Id = String
+  newtype Fabric = Fabric (Map Square [Id]) deriving (Show, Eq)
 
   countOverlaps :: Fabric -> Int
-  countOverlaps = length . filter (\i -> i > 1) . elems
+  countOverlaps = length . filter (\c -> length c > 1) . elems . extract
+
+  extract :: Fabric -> Map Square [Id]
+  extract (Fabric d) = d
+
+  join :: Fabric -> Fabric -> Fabric
+  join (Fabric a) (Fabric b) = Fabric (unionWith (++) a b)
+
+  instance Semigroup Fabric where
+    (<>) = join
+
+  instance Monoid Fabric where
+    mempty = Fabric empty
+    mappend = (<>)
 
   combine :: [Fabric] -> Fabric
-  combine = List.foldr (unionWith (+)) fempty
+  combine = List.foldr join mempty
 
-  inc :: Maybe Int -> Maybe Int
-  inc Nothing = Just 1
-  inc (Just i) = Just (i+1)
+  inc :: Id -> Maybe [Id] -> Maybe [Id]
+  inc id' Nothing = Just [id']
+  inc id' (Just id'') = Just (id':id'')
 
-  claim1 :: Fabric -> Square -> Fabric
-  claim1 fabric square = alter inc square fabric
+  claimSquare :: Id -> Fabric -> Square -> Fabric
+  claimSquare id' (Fabric f) square = Fabric (alter (inc id') square f)
 
   squares :: Claim -> [Square]
-  squares (Claim { top = top, left = left, width = width, height = height }) = [(x,y) | y <- ys, x <- xs]
+  squares (Claim { top = top, left = left, width = width, height = height }) = squares
     where
       xs = [left..(left+width-1)]
       ys = [top..(top+height-1)]
+      squares = [(x,y) | y <- ys, x <- xs]
 
-  fempty :: Fabric
-  fempty = Data.Map.empty
+  claimFabric :: Claim -> Fabric
+  claimFabric claim = foldl (claimSquare $ id' claim) (Fabric empty) $ squares claim
 
-  fabric :: Claim -> Fabric
-  fabric = foldl claim1 fempty . squares
-
+  parse :: String -> Maybe Claim
+  parse = createClaim . Parse.getParts . getClaimParts
 
   getClaimParts :: String -> Parse.Parser String
   getClaimParts input =
@@ -61,7 +75,7 @@ module Dec3 where
     >>= Parse.digits
     >>= Parse.drop 'x'
     >>= Parse.digits
-  
+
   createClaim :: [String] -> Maybe Claim
   createClaim [id', left, top, width, height] = Just $ Claim {
     id' = id',
@@ -72,18 +86,14 @@ module Dec3 where
   }
   createClaim input = trace ("failed to create claim from input: " ++ show input) Nothing
 
-  parse :: String -> Maybe Claim
-  parse = createClaim . Parse.getParts . getClaimParts
-
-  toc :: Maybe Int -> String
-  toc (Just i) = show i
-  toc Nothing = "."
-
   display :: Fabric -> (Int, Int) -> String
   display fabric (width, height) =
     let
+      toc (Just [i]) = i
+      toc (Just (i:j:_)) = "X"
+      toc Nothing = "."
       xs = [0..width-1]
       ys = [0..height-1]
-      ls = [ concat [ toc $ Data.Map.lookup (x, y) fabric | y <- ys ] | x <- xs ]
+      ls = [ concat [ toc $ Data.Map.lookup (x, y) (extract fabric) | y <- ys ] | x <- xs ]
     in
       unlines ls
