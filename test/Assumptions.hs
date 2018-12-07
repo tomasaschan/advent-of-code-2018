@@ -1,11 +1,11 @@
-module UtilsSpec where
+module Assumptions where
 
   import Test.Hspec
   import Test.Hspec.QuickCheck
   import Text.Printf
 
   spec :: Spec
-  spec = describe "Utilities" $ do
+  spec = describe "Assumptions" $ do
     context "in the standard library" $ do
       context "my itos helper does what i think it does" $ do
         it "returns +1 for 1" $ do
