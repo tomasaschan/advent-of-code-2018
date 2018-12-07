@@ -9,8 +9,9 @@ module Dec5 where
   solveB :: [String] -> String
   solveB [input] =
     let
-      getLengths = map (\c -> improvedLength c) (units input)
-      lenghts = map (\f -> f input) getLengths
+      input' = annihilate input
+      getLengths = map (\c -> improvedLength c) (units input')
+      lenghts = map (\f -> f input') getLengths
       best = minimum lenghts
     in show best
   solveB _ = "invalid input format"
