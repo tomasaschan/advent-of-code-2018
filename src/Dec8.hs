@@ -54,8 +54,15 @@ module Dec8 where
   sumMeta (NodeInfo { children = c, meta = m }) = sum (m ++ map sumMeta c)
 
   nodeValue :: NodeInfo -> Int
-  nodeValue (NodeInfo { children = (c:cs), meta = m }) = sum $ map nodeValue $ referencedNodes (c:cs) m
-  nodeValue (NodeInfo { children = [], meta = m}) = sum m
+  nodeValue node
+    | hasChildren node = sum $ map nodeValue $ referencedNodes (children node) (meta node)
+    | otherwise = sum $ meta node
+
+  hasChildren :: NodeInfo -> Bool
+  hasChildren = (<) 0 . length . children
+
+  getOneIndexedMaybe :: [a] -> Int -> Maybe a
+  getOneIndexedMaybe as i = as !? (i - 1)
 
   referencedNodes :: [NodeInfo] -> [Int] -> [NodeInfo]
-  referencedNodes c m = catMaybes $ map ((!?) c . (-) 1) m
+  referencedNodes c = catMaybes . map (getOneIndexedMaybe c)
