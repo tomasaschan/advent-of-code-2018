@@ -144,7 +144,7 @@ module Dec6 where
       left  = [ (0,y') | y' <- [0..y]]
       right = [ (x,y') | y' <- [0..y]]
       edges = List.nub $ upper ++ lower ++ left ++ right
-  
+
   removeInfinites :: Grid -> Grid
   removeInfinites g = foldl unmark g (infinites g)
 

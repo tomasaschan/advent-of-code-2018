@@ -46,6 +46,6 @@ where
   _getDigits prev x =
     case digit x of
       (Just d, rest) -> do _getDigits (d:prev) rest
-      (Nothing, rest) -> do 
+      (Nothing, rest) -> do
         Parser (rest, [concat $ reverse prev])
 
