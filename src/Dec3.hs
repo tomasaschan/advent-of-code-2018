@@ -73,7 +73,7 @@ module Dec3 where
   claimFabric claim = foldl (claimSquare $ id' claim) (Fabric empty) $ squares claim
 
   parse :: String -> Maybe Claim
-  parse = createClaim . Parse.getParts . getClaimParts
+  parse = Parse.extract createClaim . getClaimParts
 
   getClaimParts :: String -> Parse.Parser String
   getClaimParts input =

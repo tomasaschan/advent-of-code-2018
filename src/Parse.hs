@@ -1,8 +1,10 @@
-module Parse 
-  (Parser, Parse.drop, digits, getParts)
+module Parse
+  (Parser, Parse.drop, digits, extract, expect, readRest, peek)
 where
-  import Control.Applicative -- Otherwise you can't do the Applicative instance.
+  import Control.Applicative() -- Otherwise you can't do the Applicative instance.
   import Control.Monad (liftM, ap)
+  import Data.List (isPrefixOf)
+  import Text.Printf
 
   data Parser a = Parser (a, [String]) deriving (Show, Eq)
 
@@ -18,13 +20,27 @@ where
       where
         Parser (rest', groups') = f rest
 
+  extract :: ([String] -> a) -> Parser b -> a
+  extract f = f . getParts
+
   getParts :: Parser a -> [String]
-  getParts (Parser (a, parts)) = parts
+  getParts (Parser (_, parts)) = parts
 
   drop :: Char -> String -> Parser String
   drop c x = case x of
     (c:rest) -> do return rest
     otherwise -> do return x
+
+  expect :: String -> String -> Parser String
+  expect e s
+    | e `isPrefixOf` s = do return $ Prelude.drop (length e) s
+    | otherwise = error (printf "expected string %s but got %s" e s)
+
+  readRest :: String -> Parser String
+  readRest s = Parser ("", [s])
+
+  peek :: (Char -> String -> Parser String) -> String -> Parser String
+  peek f (c:s) = f c (c:s)
 
   digit :: String -> (Maybe String, String)
   digit ('0':rest) = (Just "0", rest)

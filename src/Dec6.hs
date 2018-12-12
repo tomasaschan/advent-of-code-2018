@@ -26,8 +26,7 @@ module Dec6 where
   coord input = (x,y)
    where
     parsed = Parse.digits input >>= Parse.drop ',' >>= Parse.drop ' ' >>= Parse.digits
-    parts = Parse.getParts parsed
-    [x,y] = map (read :: String -> Int) parts
+    [x,y] = Parse.extract (map (read :: String -> Int)) parsed
 
   type Point = (Coord, [Char])
   points :: [String] -> [Point]
