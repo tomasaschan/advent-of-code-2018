@@ -1,13 +1,13 @@
 module Dec18 where
 
-  import Data.Map (insert, empty, toList, fromList)
-  import Data.List (filter)
-  import qualified Data.Map (Map, lookup)
+  import Data.Map (Map, insert, empty, toList, fromList)
+  import Data.List (filter, elemIndex)
+  import qualified Data.Map as Map (lookup)
   import Data.Maybe (catMaybes)
 
   data State = Open | Trees | Lumbermill deriving (Show,Eq)
   type Coord = (Int,Int)
-  type Map = Data.Map.Map Coord State
+  type CollectionArea = Map Coord State
 
   solveA :: [String] -> String
   solveA = show . resourceValue . stepN 10 . createMap . map parseRow
@@ -24,7 +24,7 @@ module Dec18 where
   parseRow :: String -> [State]
   parseRow = catMaybes . map parse
 
-  createMap :: [[State]] -> Map
+  createMap :: [[State]] -> CollectionArea
   createMap states = _createMap 1 states empty
     where
       _createRow _ _ [] m = m
@@ -33,12 +33,12 @@ module Dec18 where
       _createMap _ [] m = m
       _createMap y (r:rs) m = _createMap (y+1) rs (_createRow 1 y r m)
 
-  stateAt :: Map -> Coord -> State
-  stateAt m c = case Data.Map.lookup c m of
+  stateAt :: CollectionArea -> Coord -> State
+  stateAt m c = case Map.lookup c m of
     Just s -> s
     Nothing -> Open
 
-  surroundings :: Map -> Coord -> [State]
+  surroundings :: CollectionArea -> Coord -> [State]
   surroundings m (x,y) = map (stateAt m) [ (x+1,y+1), (x+1,y), (x+1,y-1), (x,y-1), (x-1,y-1), (x-1,y), (x-1,y+1), (x,y+1) ]
 
   hasAtLeast :: Eq a => Int -> a -> [a] -> Bool
@@ -55,7 +55,7 @@ module Dec18 where
     | hasAtLeast 1 Lumbermill s && hasAtLeast 1 Trees s = Lumbermill
     | otherwise = Open
 
-  step :: Map -> Map
+  step :: CollectionArea -> CollectionArea
   step initial = fromList . map progress . toList $ initial
     where
       progress (c,s) = (c, next s (surroundings initial c))
@@ -65,7 +65,7 @@ module Dec18 where
   -- stepN n m = stepN (n-1) (step m)
   stepN n m = head . drop n . iterate step $ m
 
-  resourceValue :: Map -> Int
+  resourceValue :: CollectionArea -> Int
   resourceValue m = lumbered * milled
     where
       states = map snd . toList $ m
