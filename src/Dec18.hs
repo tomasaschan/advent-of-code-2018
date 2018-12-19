@@ -80,5 +80,6 @@ module Dec18 where
   displayState Trees = '|'
   displayState Lumbermill = '#'
 
-  displayMap :: Int -> Map -> [String]
-  displayMap size m = [ [ displayState . stateAt m $ (x,y) | x <- [1..size] ] | y <- [1..size] ]
+  displayMap :: Int -> CollectionArea -> [String]
+  displayMap size m = [ map s [ (x,y) | x <- [1..size] ] | y <- [1..size] ]
+    where s = displayState . stateAt m
