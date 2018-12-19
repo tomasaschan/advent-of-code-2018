@@ -10,10 +10,10 @@ module Dec18 where
   type CollectionArea = Map Coord State
 
   solveA :: [String] -> String
-  solveA = show . resourceValue . stepN 10 . createMap . map parseRow
+  solveA = show . resourceValue . simulate 10 [] . createMap . map parseRow
 
   solveB :: [String] -> String
-  solveB = show . resourceValue . stepN 1000000000 . createMap . map parseRow
+  solveB = show . resourceValue . simulate 1000000000 [] . createMap . map parseRow
 
   parse :: Char -> Maybe State
   parse '.' = Just Open
@@ -60,10 +60,13 @@ module Dec18 where
     where
       progress (c,s) = (c, next s (surroundings initial c))
 
-  stepN :: Int -> Map -> Map
-  -- stepN 0 m = m
-  -- stepN n m = stepN (n-1) (step m)
-  stepN n m = head . drop n . iterate step $ m
+  simulate :: Int -> [CollectionArea] -> CollectionArea -> CollectionArea
+  simulate 0 _ m = m
+  simulate n history m = simulate n' history' m'
+    where
+      (n', history', m') = case elemIndex m history of
+        Just i -> (n `mod` (i + 1), [], m)
+        Nothing -> (n-1, m:history, step m)
 
   resourceValue :: CollectionArea -> Int
   resourceValue m = lumbered * milled
