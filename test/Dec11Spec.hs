@@ -60,11 +60,11 @@ module Dec11Spec where
       it "example with serial number 42" $ do
         solveFor 42 21 61 `shouldBe` 30
 
-    describe "solves the example for a" $ do
-      it "solves the example for serial number 18" $ do
-        solveA ["18"] `shouldBe` "(33,45)"
-      it "solves the example for serial number 42" $ do
-        solveA ["42"] `shouldBe` "(21,61)"
+    -- describe "solves the example for a" $ do
+    --   it "solves the example for serial number 18" $ do
+    --     solveA ["18"] `shouldBe` "(33,45)"
+    --   it "solves the example for serial number 42" $ do
+    --     solveA ["42"] `shouldBe` "(21,61)"
 
     -- describe "solves the examples for b" $ do
     --   it "solves the example for serial number 18" $ do
