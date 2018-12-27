@@ -5,7 +5,6 @@ module Aoc2017.Dec1 (
   solveB
 ) where
 
-import Data.List
 import Text.Printf
 
 shift :: Int -> [a] -> [a]
@@ -26,17 +25,17 @@ pairIsValid (a,b) = a == b
 data Shift = One | Half deriving (Show, Eq)
 
 sumString :: Shift -> String -> Int
-sumString shift input = sum numbers
+sumString s input = sum numbers
   where
-    n = case shift of
+    n = case s of
       One -> 1
       Half -> div (length input) 2
     ps = pairs n input
     validPairs = filter pairIsValid ps
-    numbers = map (read . fst) validPairs :: [Int] 
+    numbers = map (read . fst) validPairs :: [Int]
 
 solve :: Shift -> [String] -> String
-solve shift = printf "%d" . sumString shift . head
+solve s = printf "%d" . sumString s . head
 
 solveA :: [String] -> String
 solveA = solve One
