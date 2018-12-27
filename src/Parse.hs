@@ -1,5 +1,5 @@
 module Parse
-  (Parser, Parse.drop, digits, extract, expect, readRest, peek)
+  (Parser, Parse.drop, digits, extract, expect, readRest, peek, char)
 where
   import Control.Applicative() -- Otherwise you can't do the Applicative instance.
   import Control.Monad (liftM, ap)
@@ -43,6 +43,10 @@ where
   peek :: (Char -> String -> Parser String) -> String -> Parser String
   peek f (c:s) = f c (c:s)
   peek _ [] = error ("tried to peek into an empty string")
+
+  char :: String -> Parser String
+  char (c:rest) = Parser(rest, [printf "%c" c])
+  char [] = error "expected a character, but the input string is empty"
 
   digit :: String -> (Maybe String, String)
   digit ('0':rest) = (Just "0", rest)
