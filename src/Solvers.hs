@@ -7,6 +7,7 @@ import qualified Solvers.Dec3 as Dec3
 import qualified Solvers.Dec4 as Dec4
 import qualified Solvers.Dec5 as Dec5
 import qualified Solvers.Dec6 as Dec6
+import qualified Solvers.Dec7 as Dec7
 import qualified Solvers.Dec8 as Dec8
 import qualified Solvers.Dec11 as Dec11
 import qualified Solvers.Dec18 as Dec18
@@ -26,6 +27,8 @@ solver "5a" = Just Dec5.solveA
 solver "5b" = Just Dec5.solveB
 solver "6a" = Just Dec6.solveA
 solver "6b" = Just $ Dec6.solveB 10000
+solver "7a" = Just Dec7.solveA
+solver "7b" = Just $ Dec7.solveB 5 60
 solver "8a" = Just Dec8.solveA
 solver "8b" = Just Dec8.solveB
 solver "11a" = Just Dec11.solveA
