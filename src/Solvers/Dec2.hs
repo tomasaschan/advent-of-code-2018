@@ -3,8 +3,6 @@ module Solvers.Dec2 where
   import Data.List
   import qualified Data.Map.Lazy as Map
 
-  import Debug.Trace
-
   frequency :: Ord a => [a] -> [(a, Int)]
   frequency xs = Map.toList (Map.fromListWith (+) [ (x,1) | x <- xs ])
 
@@ -38,24 +36,25 @@ module Solvers.Dec2 where
     | otherwise = False
       where
         zipped = zip a b
-        matched = map (\(a,b) -> a == b) zipped
+        matched = map (uncurry (==)) zipped
         unmatched = filter not matched
         isAdjacent = length unmatched == 1
 
   findAdjacent :: [String] -> Maybe (String, String)
-  findAdjacent [] = Nothing
   findAdjacent (a:[b])
     | adjacent (a,b) = Just (a,b)
     | otherwise = Nothing
   findAdjacent (a:b:rest)
     | adjacent (a,b) = Just (a,b)
     | otherwise = findAdjacent (b:rest)
+  findAdjacent _ = Nothing
 
   commonLetters :: Maybe (String, String) -> String
   commonLetters (Just (a,b)) = word
     where
-      matching = map ((\x -> [x]) . fst) $ filter (\(a,b) -> a == b) $ zip a b
+      matching = map (pure . fst) $ filter (uncurry (==)) $ zip a b
       word = intercalate "" matching
+  commonLetters Nothing = error "Expected Just (a,b) but got nothing"
 
   solveB :: [String] -> String
   solveB = commonLetters . findAdjacent . sort

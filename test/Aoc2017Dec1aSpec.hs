@@ -6,8 +6,8 @@ module Aoc2017Dec1aSpec where
 
   spec :: Spec
   spec = describe "2017: dec 1" $ do
-    let sut = sumString One
     context "a: shifting 1" $ do
+      let sut = sumString One
       it "1122 produces 3" $ do
         sut "1122" `shouldBe` 3
       it "1111 produces 4" $ do
