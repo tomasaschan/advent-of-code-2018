@@ -1,7 +1,7 @@
-module Dec11Spec where
+module Solvers.Dec11Spec where
   import Test.Hspec
 
-  import Dec11
+  import Solvers.Dec11
 
   import Data.List ((!!))
   import Data.Map ((!))

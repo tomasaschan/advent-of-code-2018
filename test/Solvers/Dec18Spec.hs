@@ -1,7 +1,7 @@
-module Dec18Spec where
+module Solvers.Dec18Spec where
 
   import Test.Hspec
-  import Dec18
+  import Solvers.Dec18
 
   spec :: Spec
   spec = context "Dec 18" $ do

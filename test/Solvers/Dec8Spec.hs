@@ -1,8 +1,8 @@
-module Dec8Spec where
+module Solvers.Dec8Spec where
 
   import Test.Hspec
 
-  import Dec8
+  import Solvers.Dec8
 
   spec :: Spec
   spec = describe "Dec 8" $ do

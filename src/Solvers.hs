@@ -1,15 +1,15 @@
 module Solvers where
 
 import qualified Aoc2017.Dec1
-import qualified Dec1
-import qualified Dec2
-import qualified Dec3
-import qualified Dec4
-import qualified Dec5
-import qualified Dec6
-import qualified Dec8
-import qualified Dec11
-import qualified Dec18
+import qualified Solvers.Dec1 as Dec1
+import qualified Solvers.Dec2 as Dec2
+import qualified Solvers.Dec3 as Dec3
+import qualified Solvers.Dec4 as Dec4
+import qualified Solvers.Dec5 as Dec5
+import qualified Solvers.Dec6 as Dec6
+import qualified Solvers.Dec8 as Dec8
+import qualified Solvers.Dec11 as Dec11
+import qualified Solvers.Dec18 as Dec18
 
 solver :: String -> Maybe ([String] -> String)
 solver "2017-1a" = Just Aoc2017.Dec1.solveA

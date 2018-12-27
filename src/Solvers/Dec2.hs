@@ -1,4 +1,4 @@
-module Dec2 where
+module Solvers.Dec2 where
 
   import Data.List
   import qualified Data.Map.Lazy as Map

@@ -1,4 +1,4 @@
-module Dec11 where
+module Solvers.Dec11 where
 
   import Data.Map (Map, (!), insert, empty)
   import Text.Printf

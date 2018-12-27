@@ -1,6 +1,6 @@
-module Dec6Spec where
+module Solvers.Dec6Spec where
 
-  import Dec6
+  import Solvers.Dec6
 
   import Test.Hspec
 

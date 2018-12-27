@@ -1,10 +1,10 @@
-module Dec3Spec where
+module Solvers.Dec3Spec where
 
   import Test.Hspec
   import Data.Map
   import Data.Maybe
 
-  import Dec3
+  import Solvers.Dec3
 
   spec :: Spec
   spec = describe "3 Dec" $ do

@@ -1,4 +1,4 @@
-module Dec6 where
+module Solvers.Dec6 where
 
   import qualified Parse
   import Data.Map (Map, (!))

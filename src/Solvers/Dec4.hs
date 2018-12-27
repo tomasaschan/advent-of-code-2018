@@ -1,4 +1,4 @@
-module Dec4 where
+module Solvers.Dec4 where
 
   import Data.Function (on)
   import Data.List (map, sort, maximumBy, elemIndex, nub)

@@ -1,4 +1,4 @@
-module Dec5 where
+module Solvers.Dec5 where
 
   import Data.Char
   import Data.List

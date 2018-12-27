@@ -1,4 +1,4 @@
-module Dec8 where
+module Solvers.Dec8 where
 
   import Utils.List
   import Data.List.Split
@@ -34,7 +34,7 @@ module Dec8 where
       (mta, xssss) = readMeta (metaCount hdr) xsss
       node = NodeInfo { header = hdr, children = nds, meta = mta }
       rest = xssss
-  
+
   readNodes :: Int -> [Int] -> ([NodeInfo], [Int])
   readNodes 0     xs = ([],    xs)
   readNodes count xs = (nodes, rest)
@@ -42,7 +42,7 @@ module Dec8 where
       (first, rest') = readNode xs
       (rest'', rest) = readNodes (count-1) rest'
       nodes = first : rest''
-  
+
   readHeader :: [Int] -> (Header, [Int])
   readHeader (a:b:rest) = (Header { childCount = a, metaCount = b }, rest)
   readHeader _ = error "not enough elements in the list to read a header"

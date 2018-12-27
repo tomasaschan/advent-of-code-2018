@@ -1,4 +1,4 @@
-module Dec18 where
+module Solvers.Dec18 where
 
   import Data.Map (Map, insert, empty, toList, fromList)
   import Data.List (filter, elemIndex)

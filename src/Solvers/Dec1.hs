@@ -1,11 +1,11 @@
-module Dec1 (
+module Solvers.Dec1 (
   solveA,
   solveB,
   addP
 )
 where
 
-  import Data.Set (Set, empty, insert, member, singleton)
+  import Data.Set (Set, insert, member, singleton)
 
   parseFreq :: String -> Int
   parseFreq ('+':s) = read s
@@ -20,6 +20,7 @@ where
     | otherwise =
       addP next (insert next seen) rest where
         next = current + this
+  addP current _ [] = current
 
   solveB :: [String] -> String
   solveB = show . addP 0 (singleton 0) . cycle . map parseFreq

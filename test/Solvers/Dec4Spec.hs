@@ -1,9 +1,9 @@
-module Dec4Spec where
+module Solvers.Dec4Spec where
 
   import Test.Hspec
   import Parse
 
-  import Dec4
+  import Solvers.Dec4
 
   spec :: Spec
   spec = describe "Dec 4" $ do

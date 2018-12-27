@@ -1,6 +1,6 @@
-module Dec3 where
+module Solvers.Dec3 where
 
-  import Data.Map (Map, alter, empty, toList, lookup, unionWith, elems)
+  import Data.Map (Map, alter, empty, lookup, unionWith, elems)
   import qualified Data.List as List (foldr)
   import Data.Maybe (catMaybes)
   import Data.List (nub)
@@ -34,9 +34,9 @@ module Dec3 where
       findOverlapping = nub . concat . filter ((<) 1 . length) . elems . extract
       findAll = nub . concat . elems . extract
       overlapped = findOverlapping fabric
-      all = findAll fabric
+      allIds = findAll fabric
       isOutlier x = notElem x overlapped
-      outliers = filter isOutlier all
+      outliers = filter isOutlier allIds
     in head outliers
 
   extract :: Fabric -> Map Square [Id]
@@ -56,18 +56,18 @@ module Dec3 where
   combine = List.foldr join mempty
 
   inc :: Id -> Maybe [Id] -> Maybe [Id]
-  inc id' Nothing = Just [id']
-  inc id' (Just id'') = Just (id':id'')
+  inc i Nothing = Just [i]
+  inc i (Just i') = Just (i:i')
 
   claimSquare :: Id -> Fabric -> Square -> Fabric
-  claimSquare id' (Fabric f) square = Fabric (alter (inc id') square f)
+  claimSquare i (Fabric f) square = Fabric (alter (inc i) square f)
 
   squares :: Claim -> [Square]
-  squares (Claim { top = top, left = left, width = width, height = height }) = squares
+  squares (Claim { top = t, left = l, width = w, height = h }) = sqs
     where
-      xs = [left..(left+width-1)]
-      ys = [top..(top+height-1)]
-      squares = [(x,y) | y <- ys, x <- xs]
+      xs = [l..(l+w-1)]
+      ys = [t..(t+h-1)]
+      sqs = [(x,y) | y <- ys, x <- xs]
 
   claimFabric :: Claim -> Fabric
   claimFabric claim = foldl (claimSquare $ id' claim) (Fabric empty) $ squares claim
@@ -92,23 +92,24 @@ module Dec3 where
     >>= Parse.digits
 
   createClaim :: [String] -> Maybe Claim
-  createClaim [id', left, top, width, height] = Just $ Claim {
-    id' = id',
-    top = read top,
-    left = read left,
-    width = read width,
-    height = read height
+  createClaim [i, l, t, w, h] = Just $ Claim {
+    id' = i,
+    top = read t,
+    left = read l,
+    width = read w,
+    height = read h
   }
   createClaim input = trace ("failed to create claim from input: " ++ show input) Nothing
 
   display :: Fabric -> (Int, Int) -> String
-  display fabric (width, height) =
+  display fabric (w, h) =
     let
       toc (Just [i]) = i
-      toc (Just (i:j:_)) = "X"
+      toc (Just (_:_:_)) = "X"
+      toc (Just []) = "."
       toc Nothing = "."
-      xs = [0..width-1]
-      ys = [0..height-1]
+      xs = [0..w-1]
+      ys = [0..h-1]
       ls = [ concat [ toc $ Data.Map.lookup (x, y) (extract fabric) | y <- ys ] | x <- xs ]
     in
       unlines ls
