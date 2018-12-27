@@ -17,12 +17,15 @@ description: Please see the README on GitHub at <https://github.com/tomasaschan/
 
 dependencies:
   - base
-  - hspec
-  - split
   - containers
 
 library:
   source-dirs: src
+  dependencies:
+    - graphite
+    - hashable
+    - split
+    - sort
 
 executables:
   aoc:
@@ -35,7 +38,6 @@ executables:
     dependencies:
       - aoc
       - directory
-      - containers
 
 tests:
   aoc-test:
@@ -48,4 +50,3 @@ tests:
     dependencies:
       - aoc
       - hspec
-      - QuickCheck

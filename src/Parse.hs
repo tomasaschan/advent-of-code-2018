@@ -27,9 +27,10 @@ where
   getParts (Parser (_, parts)) = parts
 
   drop :: Char -> String -> Parser String
-  drop c x = case x of
-    (c:rest) -> do return rest
-    otherwise -> do return x
+  drop c x
+    | x == [] = error (printf "expected char %c but got empty string" c)
+    | head x == c = do return $ tail x
+    | otherwise = error (printf "expected %c but got %s" c x)
 
   expect :: String -> String -> Parser String
   expect e s
@@ -41,6 +42,7 @@ where
 
   peek :: (Char -> String -> Parser String) -> String -> Parser String
   peek f (c:s) = f c (c:s)
+  peek _ [] = error ("tried to peek into an empty string")
 
   digit :: String -> (Maybe String, String)
   digit ('0':rest) = (Just "0", rest)
