@@ -1,9 +1,6 @@
 module Utils where
 
-  import System.IO
-  import System.CPUTime
   import System.Directory
-  import Text.Printf
 
   readSafe :: FilePath -> Bool -> IO (Maybe [String])
   readSafe input True = do
