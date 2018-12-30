@@ -44,7 +44,7 @@ module Solvers.Dec7 where
     where
       vx s = (s, duration s)
       duration = (+) (1 + extra) . fromJust . flip elemIndex alphabet
-      alphabet = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+      alphabet = fmap (printf "%c") ['A'..'Z']
 
   isDone :: BState -> Bool
   isDone s = noDeps && noInProgress
