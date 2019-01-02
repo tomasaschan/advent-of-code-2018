@@ -1,5 +1,5 @@
 module Parse
-  (Parser, Parse.drop, digits, extract, expect, readRest, peek, char)
+  (Parser, Parse.drop, digits, extract, expect, readRest, peek, char, number)
 where
   import Control.Applicative() -- Otherwise you can't do the Applicative instance.
   import Control.Monad (liftM, ap)
@@ -48,26 +48,35 @@ where
   char (c:rest) = Parser(rest, [printf "%c" c])
   char [] = error "expected a character, but the input string is empty"
 
-  digit :: String -> (Maybe String, String)
-  digit ('0':rest) = (Just "0", rest)
-  digit ('1':rest) = (Just "1", rest)
-  digit ('2':rest) = (Just "2", rest)
-  digit ('3':rest) = (Just "3", rest)
-  digit ('4':rest) = (Just "4", rest)
-  digit ('5':rest) = (Just "5", rest)
-  digit ('6':rest) = (Just "6", rest)
-  digit ('7':rest) = (Just "7", rest)
-  digit ('8':rest) = (Just "8", rest)
-  digit ('9':rest) = (Just "9", rest)
-  digit x = (Nothing, x)
+  number :: String -> Parser String
+  number s = peek _number s
+    where
+      _number '-' ('-':s') = Parser (rest, ['-':(head ds)])
+        where Parser (rest, ds) = digits s'
+      _number ' ' (' ':s') = Parser (rest, ds)
+        where Parser (rest, ds) = digits s'
+      _number _ s' = digits s'
 
   digits :: String -> Parser String
-  digits = _getDigits []
+  digits = _getDigits ""
+    where
+      _getDigits :: String -> String -> Parser String
+      _getDigits prev x =
+        case digit x of
+          (Just d, rest) -> do _getDigits (d:prev) rest
+          (Nothing, rest) -> do
+            Parser (rest, [reverse prev])
 
-  _getDigits :: [String] -> String -> Parser String
-  _getDigits prev x =
-    case digit x of
-      (Just d, rest) -> do _getDigits (d:prev) rest
-      (Nothing, rest) -> do
-        Parser (rest, [concat $ reverse prev])
+      digit :: String -> (Maybe Char, String)
+      digit ('0':rest) = (Just '0', rest)
+      digit ('1':rest) = (Just '1', rest)
+      digit ('2':rest) = (Just '2', rest)
+      digit ('3':rest) = (Just '3', rest)
+      digit ('4':rest) = (Just '4', rest)
+      digit ('5':rest) = (Just '5', rest)
+      digit ('6':rest) = (Just '6', rest)
+      digit ('7':rest) = (Just '7', rest)
+      digit ('8':rest) = (Just '8', rest)
+      digit ('9':rest) = (Just '9', rest)
+      digit x = (Nothing, x)
 
