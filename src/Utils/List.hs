@@ -10,4 +10,4 @@ module Utils.List where
   minmax :: (Foldable t, Ord a, Bounded a) => t a -> (a, a)
   minmax = foldl' folder (maxBound, minBound)
     where
-      folder (lo,hi) a = (min lo a, max lo a)
+      folder (lo,hi) a = (min lo a, max hi a)
