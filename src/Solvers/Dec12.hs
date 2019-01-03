@@ -3,8 +3,9 @@ module Solvers.Dec12 where
   import Utils.List (minmax)
   import qualified Parse
 
+  import Prelude hiding (lookup)
   import Data.List (iterate')
-  import Data.Map (Map, toList, fromList, keys, lookup)
+  import Data.Map.Strict (Map, toList, fromList, keys, lookup)
   import Data.Maybe (fromMaybe)
 
   type State = Map Int Char
@@ -16,28 +17,23 @@ module Solvers.Dec12 where
   solveB = solve 50000000000
 
   solve :: Int -> [String] -> String
-  solve generations input = show . sumPots . head . drop generations . iterate' (stepOnce rules) $ initial
+  solve generations input = show . sumPots . head . drop generations . iterate' stepOnce $ initial
     where
       initial = parseInitial . drop (length "initial state: ") . head $ input
       rules = parseRules . drop 2 $ input
       sumPots = sum . fmap fst . filter ((==) '#' . snd) . toList
 
-  lookupWithDefault :: Ord k => Map k Char -> k -> Char
-  lookupWithDefault m k = fromMaybe '.' $ Data.Map.lookup k m
+      lookupWithDefault m k = fromMaybe '.' $ lookup k m
 
-  stepOnce :: Rules -> State -> State
-  stepOnce rules state = state' `seq` state'
-    where
-      (lo,hi) = minmax $ keys state
-      rng = [lo-2..hi+2]
-      state' = fromList . zip rng . fmap spread $ rng
+      stepOnce state = state' `seq` state'
         where
-          spread :: Int -> Char
-          spread i = rule surroundings
+          (lo,hi) = minmax $ keys state
+          rng = [lo-2..hi+2]
+          state' = fromList . zip rng . fmap spread $ rng
             where
-              rule = lookupWithDefault rules
-              potAt = lookupWithDefault state
-              surroundings = fmap potAt [i-2..i+2]
+              spread :: Int -> Char
+              spread i = lookupWithDefault rules surroundings
+                where surroundings = fmap (lookupWithDefault state) [i-2..i+2]
 
   parseInitial :: String -> State
   parseInitial = fromList . zip [0..]
@@ -55,4 +51,3 @@ module Solvers.Dec12 where
             where
               _tuplify [x,y] = (x, head y)
               _tuplify o = error ("unexpected parser output: " ++ show o)
-
