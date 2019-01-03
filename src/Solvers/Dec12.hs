@@ -1,14 +1,27 @@
-module Solvers.Dec12 where
+module Solvers.Dec12
+  (
+    solveA,
+    solveB,
+    parseInitial,
+    parseRules
+  )
+where
 
   import Utils.List (minmax)
   import qualified Parse
 
   import Prelude hiding (lookup)
-  import Data.List (iterate')
-  import Data.Map.Strict (Map, toList, fromList, keys, lookup)
+  import Data.Set (Set)
+  import qualified Data.Set as Set (fromList, toList)
+  import Data.Map.Strict (Map)
+  import qualified Data.Map.Strict as Map (fromList, lookup)
   import Data.Maybe (fromMaybe)
 
-  type State = Map Int Char
+  import Debug.Trace
+
+  import Simulation
+
+  type State = Set Int
   type Rules = Map String Char
 
   solveA :: [String] -> String
@@ -17,29 +30,38 @@ module Solvers.Dec12 where
   solveB = solve 50000000000
 
   solve :: Int -> [String] -> String
-  solve generations input = show . sumPots . head . drop generations . iterate' stepOnce $ initial
+  solve generations input = show . sum . run $ initial
     where
-      initial = parseInitial . drop (length "initial state: ") . head $ input
+      initial = parseInitial . head $ input
       rules = parseRules . drop 2 $ input
-      sumPots = sum . fmap fst . filter ((==) '#' . snd) . toList
+      run = simulateToSteadyState store finish stepOnce "" generations
+      finish n = Set.fromList . fmap ((+) (trace ("forwarding " ++ show n ++ " steps") n)) . Set.toList
+      lookupWithDefault m k = fromMaybe '.' $ Map.lookup k m
 
-      lookupWithDefault m k = fromMaybe '.' $ lookup k m
-
-      stepOnce state = state' `seq` state'
+      stepOnce :: State -> State
+      stepOnce state = state'
         where
-          (lo,hi) = minmax $ keys state
-          rng = [lo-2..hi+2]
-          state' = fromList . zip rng . fmap spread $ rng
+          (lo,hi) = minmax state
+          state' = interpretString (lo-2) $ fmap spread [lo-2..hi+2]
             where
               spread :: Int -> Char
               spread i = lookupWithDefault rules surroundings
-                where surroundings = fmap (lookupWithDefault state) [i-2..i+2]
+                where surroundings = asString (i-2) (i+2) state
+
+  store :: State -> String
+  store s = asString lo hi s where (lo,hi) = minmax s
 
   parseInitial :: String -> State
-  parseInitial = fromList . zip [0..]
+  parseInitial = interpretString 0 . drop (length "initial state: ")
+
+  interpretString :: Int -> String -> State
+  interpretString offset = Set.fromList . fmap fst . filter ((=='#') . snd) . zip [offset..]
+
+  asString :: Int -> Int -> State -> String
+  asString lo hi state = fmap (toC state) [lo..hi] where toC s i' = if i' `elem` s then '#' else '.'
 
   parseRules :: [String] -> Rules
-  parseRules = fromList . fmap parseRule
+  parseRules = Map.fromList . fmap parseRule
     where
       parseRule :: String -> (String, Char)
       parseRule input = extracted
