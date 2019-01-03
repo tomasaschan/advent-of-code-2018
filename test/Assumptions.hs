@@ -17,6 +17,9 @@ module Assumptions where
       context "i understand how read works" $ do
         prop "for integers" $
           \i -> (read . cleanInt . itos) i == (i :: Int)
+    context "in the language" $ do
+      it "(<15) 3 returns true" $ do
+        (<15) 3 `shouldBe` True
 
   itos :: Int -> String
   itos i =
