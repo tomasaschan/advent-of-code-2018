@@ -1,19 +1,21 @@
 module Solvers.Dec18 where
 
-  import Data.Map (Map, insert, empty, toList, fromList)
+  import Prelude hiding (lookup)
+  import Data.Map.Strict (Map, insert, empty, toList, fromList, lookup)
   import Data.List (filter, elemIndex)
-  import qualified Data.Map as Map (lookup)
   import Data.Maybe (catMaybes)
+
+  import Simulation
 
   data State = Open | Trees | Lumbermill deriving (Show,Eq)
   type Coord = (Int,Int)
   type CollectionArea = Map Coord State
 
   solveA :: [String] -> String
-  solveA = show . resourceValue . simulate 10 [] . createMap . map parseRow
+  solveA = show . resourceValue . head . simulate step 10 . createMap . map parseRow
 
   solveB :: [String] -> String
-  solveB = show . resourceValue . simulate 1000000000 [] . createMap . map parseRow
+  solveB = show . resourceValue . simulateWithCycleDetection id noop step 1000000000 . createMap . map parseRow
 
   parse :: Char -> Maybe State
   parse '.' = Just Open
@@ -34,7 +36,7 @@ module Solvers.Dec18 where
       _createMap y (r:rs) m = _createMap (y+1) rs (_createRow 1 y r m)
 
   stateAt :: CollectionArea -> Coord -> State
-  stateAt m c = case Map.lookup c m of
+  stateAt m c = case lookup c m of
     Just s -> s
     Nothing -> Open
 
@@ -59,14 +61,6 @@ module Solvers.Dec18 where
   step initial = fromList . map progress . toList $ initial
     where
       progress (c,s) = (c, next s (surroundings initial c))
-
-  simulate :: Int -> [CollectionArea] -> CollectionArea -> CollectionArea
-  simulate 0 _ m = m
-  simulate n history m = simulate n' history' m'
-    where
-      (n', history', m') = case elemIndex m history of
-        Just i -> (n `mod` (i + 1), [], m)
-        Nothing -> (n-1, m:history, step m)
 
   resourceValue :: CollectionArea -> Int
   resourceValue m = lumbered * milled
