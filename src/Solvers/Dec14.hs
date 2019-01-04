@@ -50,7 +50,9 @@ module Solvers.Dec14 where
           j = elf2 s'
           x = recipe i rs
           y = recipe j rs
-        in digits 10 (x + y)
+        in case digits 10 (x + y) of
+          [] -> [0]
+          ds -> ds
 
       nextPos :: Recipies -> Int -> Int
       nextPos rs i =

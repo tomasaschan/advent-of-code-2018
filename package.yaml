@@ -51,5 +51,6 @@ tests:
       - -with-rtsopts=-N
     dependencies:
       - aoc
+      - digits
       - hspec
       - QuickCheck
