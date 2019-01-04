@@ -13,6 +13,7 @@ import qualified Solvers.Dec9 as Dec9
 import qualified Solvers.Dec10 as Dec10
 import qualified Solvers.Dec11 as Dec11
 import qualified Solvers.Dec12 as Dec12
+import qualified Solvers.Dec13 as Dec13
 import qualified Solvers.Dec18 as Dec18
 
 solver :: String -> Maybe ([String] -> String)
@@ -41,6 +42,8 @@ solver "11a" = Just Dec11.solveA
 solver "11b" = Just Dec11.solveB
 solver "12a" = Just Dec12.solveA
 solver "12b" = Just Dec12.solveB
+solver "13a" = Just Dec13.solveA
+solver "13b" = Just Dec13.solveB
 solver "18a" = Just Dec18.solveA
 solver "18b" = Just Dec18.solveB
 solver _ = Nothing

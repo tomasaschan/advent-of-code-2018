@@ -12,6 +12,13 @@ module Simulation where
           s' = next s
           h' = s:h
 
+  simulateUntil :: Int -> (a -> Bool) -> (a -> a) -> a -> [a]
+  simulateUntil maxIterations isDone next initial = _simulateUntil 0 [] initial
+    where
+      _simulateUntil n h s
+        | n == maxIterations || isDone s = s:h
+        | otherwise = _simulateUntil (n+1) (s:h) (next s)
+
   simulateToSteadyState :: Eq b => (a -> b) -> (Int -> a -> a) -> (a -> a) -> b -> Int -> a -> a
   simulateToSteadyState _ _ _ _ 0 s = s
   simulateToSteadyState store finisher next prev n s

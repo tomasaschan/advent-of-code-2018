@@ -3,5 +3,6 @@ packages:
   - .
 extra-deps:
   - graphite-0.9.8.0
+  - Unique-0.4.7.5
 flags: {}
 extra-package-dbs: []
