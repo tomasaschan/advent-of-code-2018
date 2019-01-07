@@ -10,7 +10,8 @@ module Solvers.Dec13 where
   import Data.Function (on)
 
   import Simulation (simulateUntil)
-  import Utils.List (maximums, readingOrder, hasDuplicates)
+  import Utils.List (readingOrder, hasDuplicates)
+  import Utils.Foldable (maximums)
 
   import Debug.Trace
   tpaint :: Tracks -> [Car] -> [Car]

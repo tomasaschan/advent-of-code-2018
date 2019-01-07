@@ -8,16 +8,6 @@ module Utils.List where
     | 0 <= i && i < length xs = Just (xs !! i)
     | otherwise = Nothing
 
-  minmax :: (Foldable t, Ord a, Bounded a) => t a -> (a, a)
-  minmax = foldl' folder (maxBound, minBound)
-    where
-      folder (lo,hi) a = (min lo a, max hi a)
-
-  maximums :: (Foldable t, Ord a, Bounded a) => t (a,a) -> (a,a)
-  maximums = foldl' folder (minBound, minBound)
-    where
-      folder (xhi, yhi) (x,y) = (max xhi x, max yhi y)
-
   readingOrder :: Ord a => (a,a) -> (a,a) -> Ordering
   readingOrder (x,y) (x',y')
     | cy /= EQ = cy

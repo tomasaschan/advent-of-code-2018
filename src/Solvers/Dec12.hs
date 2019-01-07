@@ -7,7 +7,7 @@ module Solvers.Dec12
   )
 where
 
-  import Utils.List (minmax)
+  import Utils.Foldable (minmax)
   import qualified Parse
 
   import Prelude hiding (lookup)
