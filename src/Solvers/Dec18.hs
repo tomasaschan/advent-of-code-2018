@@ -2,7 +2,7 @@ module Solvers.Dec18 where
 
   import Prelude hiding (lookup)
   import Data.Map.Strict (Map, insert, empty, toList, fromList, lookup)
-  import Data.List (filter, elemIndex)
+  import Data.List (filter)
   import Data.Maybe (catMaybes)
 
   import Simulation
