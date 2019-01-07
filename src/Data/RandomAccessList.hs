@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 
 module Data.RandomAccessList
-  (RList, size, cons, head, tail, lookup, update, empty, isEmpty, fromList, toList, Tree, Digit)
+  (RList, size, cons, head, tail, lookup, update, empty, isEmpty, fromList, toList, beginsWith, endsWith)
 where
 
   -- This is based directly on Purely Functional Data Structures by Chris Okasaki
@@ -19,6 +19,17 @@ where
   empty = RList []
   isEmpty :: RList a -> Bool
   isEmpty (RList as) = null as
+
+  beginsWith :: Eq a => [a] -> RList a -> Bool
+  beginsWith []     rs = True
+  beginsWith (a:as) rs = a == head rs && beginsWith as (tail rs)
+
+  endsWith :: Eq a => [a] -> RList a -> Bool
+  endsWith as rs = all match . zip [0..] $ as
+    where
+      la = length as
+      lr = length rs
+      match (i,a) = lookup (lr-1-la+i) rs == a
 
   fromList :: [a] -> RList a
   fromList [] = empty

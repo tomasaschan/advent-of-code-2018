@@ -1,6 +1,6 @@
 module Solvers.Dec14 where
 
-  import Prelude hiding (lookup)
+  import Prelude hiding (lookup, tail)
   import Data.RandomAccessList
   import Data.Digits
 
@@ -20,6 +20,28 @@ module Solvers.Dec14 where
   solveA :: [String] -> String
   solveA = unwords . fmap (solve . read)
     where solve n = concat . fmap show . drop n . take' (n + 10) $ initial
+
+  solveB :: [String] -> String
+  solveB = unwords . fmap solve
+    where
+      solve :: String -> String
+      solve n = show . prefixLength n . recipies . Prelude.head . filter (isFinal (read n)) . iterate next $ initial
+
+      prefixLength :: String -> RList Int -> Int
+      prefixLength n rs
+        | beginsWith ds (tail rs) = length rs - length ds - 1
+        | beginsWith ds       rs  = length rs - length ds
+        | otherwise = error "trying to get prefix length when it is not a final state"
+          where ds = fmap (read . (:"")) . reverse $ n
+
+      isFinal :: Int -> State -> Bool
+      isFinal n s =
+        let
+          ds = reverse $ digits 10 n
+          rs = recipies s
+          exact = beginsWith ds rs
+          offByOne = beginsWith ds (tail rs)
+        in exact || offByOne
 
   take' :: Int -> State -> [Int]
   take' n s

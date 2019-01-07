@@ -46,6 +46,7 @@ solver "12b" = Just Dec12.solveB
 solver "13a" = Just Dec13.solveA
 solver "13b" = Just Dec13.solveB
 solver "14a" = Just Dec14.solveA
+solver "14b" = Just Dec14.solveB
 solver "18a" = Just Dec18.solveA
 solver "18b" = Just Dec18.solveB
 solver _ = Nothing

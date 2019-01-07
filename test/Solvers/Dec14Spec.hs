@@ -42,5 +42,11 @@ module Solvers.Dec14Spec where
                     ]
       solveA (fmap fst samples) `shouldBe` unwords (fmap snd samples)
 
-    -- it "solves for arno's input" $ do
-    --   solveA ["503761"] `shouldBe` "1044257397"
+    it "solves examples for b" $ do
+      let samples = [
+                      ("51589", "9"),
+                      ("01245", "5"),
+                      ("92510", "18"),
+                      ("59414", "2018")
+                    ]
+      solveB (fmap fst samples) `shouldBe` unwords (fmap snd samples)
