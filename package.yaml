@@ -25,6 +25,7 @@ library:
     - digits
     - graphite
     - hashable
+    - PSQueue
     - split
     - sort
     - Unique
@@ -69,4 +70,5 @@ tests:
       - aoc
       - digits
       - hspec
+      - PSQueue
       - QuickCheck

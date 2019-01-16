@@ -1,16 +1,16 @@
 module Output where
 
 import Solvers.Dec15
-
+import Data.Map (toList)
 import System.Console.ANSI
 
 drawMap :: Dungeon -> IO ()
 drawMap dungeon = do
   sequence_ . fmap drawTerrain . toList $ dungeon
   where
-    drawTerrain :: (Coord, Terrain) -> IO ()
-    drawTerrain (_    , Wall)   = return ()
-    drawTerrain ((x,y), Cavern) = do
+    drawTerrain :: (Coord, Bool) -> IO ()
+    drawTerrain (_    , False)   = return ()
+    drawTerrain ((x,y), True) = do
       setSGR [SetColor Foreground Dull White]
       setCursorPosition x y
       putChar '.'
@@ -37,6 +37,16 @@ showState (World dungeon units) = do
   let (_,y) = size dungeon
   setCursorPosition 0 (y+1)
   putStrLn ""
+
+drawPath :: [Coord] -> IO ()
+drawPath path = do
+  setSGR [SetColor Foreground Vivid Yellow]
+  sequence_ . fmap drawPos . tail $ path
+  where
+    drawPos :: Coord -> IO ()
+    drawPos (x,y) = do
+      setCursorPosition x y
+      putChar 'X'
 
 
 endProgram :: World -> IO ()

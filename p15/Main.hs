@@ -2,6 +2,7 @@ module Main where
 
 import Control.Monad.Except
 import Control.Exception (IOException)
+import Control.Concurrent (threadDelay)
 
 import CLI
 import Input
@@ -18,11 +19,20 @@ runMain = do
   p <- getInput opts
   runProblem p
 
+pause :: IO ()
+pause = do
+  threadDelay 100
+
+pauseAfter :: IO () -> IO ()
+pauseAfter f = do
+  f
+  pause
+
 runProblem :: (Problem, [String]) -> ExceptT IOException IO ()
 runProblem (problem, input) = do
   let s = initial problem input
   liftIO $ do
-    showState s
+    sequence_ . fmap pauseAfter . fmap showState . play $ s
     endProgram s
 
 renderError :: Show e => e -> IO ()
