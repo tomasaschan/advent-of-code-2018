@@ -16,10 +16,12 @@ spec = describe "Shortest path searching" $ do
     let prio path = (length path, fmap swap path) :: (Int, [(Int,Int)])
     prop "different lengths chooses shortest" $ \x1 -> \y1 -> \x2 -> \y2 ->
       prio [(x1,y1)] `compare` prio [(x2,y2),(x1,y1)] == LT
-    prop "same-length chooses lowest y" $ \x1 -> \x2 ->
-      prio [(x1,1)] `compare` prio [(x2,3)] == LT
-    prop "same-length and equal y chooses lowest x" $ \y ->
-      prio [(1, y)] `compare` prio [(3, y)] == LT
+    prop "same-length chooses lowest y" $ \x -> \y1 -> \y2 ->
+      prio [(x,y1)] `compare` prio [(x,y2)] == y1 `compare` y2
+    prop "same-length and equal y chooses lowest x" $ \x1 -> \x2 -> \y ->
+      prio [(x1, y)] `compare` prio [(x2, y)] == x1 `compare` x2
+    prop "same-length discriminates on first differing" $ \x1 -> \x2 -> \y1 -> \y2 ->
+      prio [(x1,y1),(x2,y2)] `compare` prio [(x1,y1),(x2,y1)] == y2 `compare` y1
 
   context "without obstacles" $ do
     let walkable (x,y) = abs(x) < 10 && abs(y) < 10

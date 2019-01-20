@@ -9,12 +9,7 @@ module Utils.List where
     | otherwise = Nothing
 
   readingOrder :: Ord a => (a,a) -> (a,a) -> Ordering
-  readingOrder (x,y) (x',y')
-    | cy /= EQ = cy
-    | otherwise = cx
-    where
-      cx = compare x x'
-      cy = compare y y'
+  readingOrder (x,y) (x',y') = compare (y,x) (y',x')
 
   hasDuplicates :: Ord a => [a] -> Bool
   hasDuplicates = hasDuplicatesWith Set.empty
