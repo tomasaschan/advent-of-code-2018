@@ -10,10 +10,13 @@ import qualified Data.Set as Set (fromList)
 import Data.Maybe (catMaybes, isJust, fromMaybe, listToMaybe)
 import Data.Function (on)
 import Data.Bifunctor (bimap)
-
+import Data.Tuple (swap)
 import Data.Pathfinding
+import Data.Foldable (toList)
 import Utils.Foldable (maximums)
 import Utils.List (readingOrder)
+import Data.Sequence (Seq((:<|)))
+import qualified Data.Sequence as Seq
 
 import Debug.Trace
 printWithLabel :: Show a => String -> a -> a
@@ -44,13 +47,13 @@ type World = (Dungeon, [Unit])
 
 data Err = Unknown String deriving (Show, Eq)
 
-data Problem = A | B | Both deriving (Show, Eq)
+data Problem = A | B Int deriving (Show, Eq)
 
-initial :: Problem -> [String] -> World
-initial problem input =
+initial :: Int -> [String] -> World
+initial elfPower input =
   let
     dungeon = parseDungeon input
-    units = parseUnits problem input
+    units = parseUnits elfPower input
   in (dungeon, units)
 
 summarize :: ([[Unit]], Int) -> (Int, Int, Int, Int)
@@ -64,7 +67,21 @@ outcome :: ([[Unit]], Int) -> Int
 outcome final = let (_,_,outcome,_) = summarize final in outcome
 
 solveA :: [String] -> String
-solveA = show . outcome . uncurry play . initial A
+solveA = show . outcome . uncurry play . initial 3
+
+solveB :: [String] -> String
+solveB = show . findVictory 4
+
+findVictory :: Int -> [String] -> Int
+findVictory pwr input =
+  let
+    (dungeon, units) = initial pwr input
+    elves = length . filter (is Elf) $ units
+    (_,_,outcome,elves') = summarize $ play dungeon units
+  in
+    if elves == elves'
+    then outcome
+    else findVictory (pwr+1) input
 
 play :: Dungeon -> [Unit] -> ([[Unit]], Turns)
 play dungeon units = turn dungeon [] [] units 0
@@ -97,15 +114,14 @@ makeMove dungeon prev this next = (prev', this', next')
   where
     others = prev ++ next
     targets = concatMap (inRangeOf . position) . filter (enemyOf this) $ others
-    canMoveTo = walkable dungeon others
-    this' = move canMoveTo targets this
+    this' = move dungeon others targets this
     (prev', next') = attack this' prev next
 
-move :: (Coord -> Bool) -> [Coord] -> Unit -> Unit
-move canMoveTo targets this =
+move :: Dungeon -> [Unit] -> [Coord] -> Unit -> Unit
+move dungeon units targets this =
   if position this `elem` targets then this
   else
-    case shortestPathReadingOrder canMoveTo inRangeOf (position this) targets of
+    case shortestPathReadingOrder dungeon units (position this) targets of
       Just p -> let (here:there:_) = p in movedTo there this
       Nothing -> this
 
@@ -139,11 +155,27 @@ inRangeOf :: Coord -> [Coord]
 inRangeOf c = fmap (add c) [(0,1),(-1,0),(1,0),(0,-1)]
   where add (x,y) (x',y') = (x+x',y+y')
 
-parseUnits :: Problem -> [String] -> [Unit]
-parseUnits _ = foldMap coupleLine . zip [0..] . fmap (zip [0..])
+shortestPathReadingOrder :: Dungeon -> [Unit] -> Coord -> [Coord] -> Maybe [Coord]
+shortestPathReadingOrder dungeon units source targets =
+  let
+    -- we want to prioritize first by length, then by reading order on the first differing position
+    -- tuples and lists are sorted lexically, so two lists of (y,x) pairs will sort according to
+    -- the first one that differs, and (y,x) sorts in reading order
+    prio :: Seq Coord -> (Int, Coord, Seq Coord)
+    prio path = (l, t, p)
+      where
+        l = Seq.length path
+        t = let h :<| _ = path in swap h
+        p = fmap swap . Seq.reverse $ path
+  in do
+    path <- bfsMapTraversal (walkable dungeon units) (Seq.fromList . inRangeOf) prio source (Set.fromList targets)
+    return $ toList path
+
+parseUnits :: Int -> [String] -> [Unit]
+parseUnits pwr = foldMap coupleLine . zip [0..] . fmap (zip [0..])
   where
     coupleLine (y, l) = catMaybes $ fmap (couplePoint y) l
-    couplePoint y (x, 'E') = Just $ Unit Elf (x,y) 3 200
+    couplePoint y (x, 'E') = Just $ Unit Elf (x,y) pwr 200
     couplePoint y (x, 'G') = Just $ Unit Goblin (x,y) 3 200
     couplePoint _ _ = Nothing
 

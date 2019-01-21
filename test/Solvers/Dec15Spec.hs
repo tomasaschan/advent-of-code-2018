@@ -71,7 +71,7 @@ spec = describe "Dec 15" $ do
                     ]
 
     it "parses units correctly" $ do
-      parseUnits A input `shouldBe` units
+      parseUnits 3 input `shouldBe` units
     it "parses map correctly" $ do
       parseDungeon input `shouldBe` dungeon
 
@@ -120,37 +120,37 @@ spec = describe "Dec 15" $ do
   describe "examples for a" $ do
     it "full example" $ do
       let input = ["#######","#.G...#","#...EG#","#.#.#G#","#..G#E#","#.....#","#######"]
-      let (dungeon, units) = initial A input
+      let (dungeon, units) = initial 3 input
       let answer = summarize . play dungeon $ units
       answer `shouldBe` (47, 590, 27730, 0)
 
     it "first example" $ do
       let input = ["#######","#G..#E#","#E#E.E#","#G.##.#","#...#E#","#...E.#","#######"]
-      let (dungeon, units) = initial A input
+      let (dungeon, units) = initial 3 input
       let answer = summarize . play dungeon $ units
       answer `shouldBe` (37, 982, 36334, 5)
 
     it "second example" $ do
       let input = ["#######","#E..EG#","#.#G.E#","#E.##E#","#G..#.#","#..E#.#","#######"]
-      let (dungeon, units) = initial A input
+      let (dungeon, units) = initial 3 input
       let answer = summarize . play dungeon $ units
       answer `shouldBe` (46, 859, 39514, 5)
 
     it "third example" $ do
       let input = ["#######","#E.G#.#","#.#G..#","#G.#.G#","#G..#.#","#...E.#","#######"]
-      let (dungeon, units) = initial A input
+      let (dungeon, units) = initial 3 input
       let answer = summarize . play dungeon $ units
       answer `shouldBe` (35, 793, 27755, 0)
 
     it "fourth example" $ do
       let input = ["#######","#.E...#","#.#..G#","#.###.#","#E#G#G#","#...#G#","#######"]
-      let (dungeon, units) = initial A input
+      let (dungeon, units) = initial 3 input
       let answer = summarize . play dungeon $ units
       answer `shouldBe` (54, 536, 28944, 0)
 
     it "fifth example" $ do
       let input = ["#########","#G......#","#.E.#...#","#..##..G#","#...##..#","#...#...#","#.G...G.#","#.....G.#","#########"]
-      let (dungeon, units) = initial A input
+      let (dungeon, units) = initial 3 input
       let answer = summarize . play dungeon $ units
       answer `shouldBe` (20, 937, 18740, 0)
 
@@ -163,13 +163,13 @@ spec = describe "Dec 15" $ do
                     "#.G.#G#",
                     "#######"
                   ]
-      let (dungeon, units) = initial A world
+      let (dungeon, units) = initial 3 world
       let targets = foldMap (inRangeOf . position) . filter ((==) Goblin . race) $ units
-      let (Just path) = shortestPathReadingOrder (walkable dungeon units) inRangeOf (1,1) targets
+      let (Just path) = shortestPathReadingOrder dungeon units (1,1) targets
       last path `shouldBe` (3,1)
 
     it "chooses the correct square to move to" $ do
-      let (dungeon, _) = initial A [
+      let (dungeon, _) = initial 3 [
                                               "#######",
                                               "#.....#",
                                               "#.....#",
@@ -180,23 +180,23 @@ spec = describe "Dec 15" $ do
       let rest = [Unit Goblin (4,3) 0 0]
       let targets = inRangeOf (4,3)
 
-      let moved = move (walkable dungeon rest) targets mover
+      let moved = move dungeon rest targets mover
       position moved `shouldBe` (3,1)
 
     it "finds cadaker's subtle bug" $ do
-      let (dungeon, units) = initial A ["#######","#..E..#","#.###.#","#.#...#","#...#.#","###G###","#######"]
+      let (dungeon, units) = initial 3 ["#######","#..E..#","#.###.#","#.#...#","#...#.#","###G###","#######"]
       let mover = the . filter ((==) Elf . race) $ units
       let target = the . filter ((==) Goblin . race) $ units
       let targets = inRangeOf . position $ target
-      let moved = move (walkable dungeon units) targets mover
+      let moved = move dungeon units targets mover
 
       position moved `shouldBe` (2,1)
 
     it "chooses targets in reading order" $ do
-      let (dungeon, units) = initial A ["######","#E...#","#.##.#","#..#.#","##.#.#","#..#.#","#.##.#","#..G.#","######"]
+      let (dungeon, units) = initial 3 ["######","#E...#","#.##.#","#..#.#","##.#.#","#..#.#","#.##.#","#..G.#","######"]
       let mover = the . filter ((==) Elf . race) $ units
       let target = the . filter ((==) Goblin . race) $ units
       let targets = inRangeOf . position $ target
-      let moved = move (walkable dungeon units) targets mover
+      let moved = move dungeon units targets mover
 
       position moved `shouldBe` (1,2)

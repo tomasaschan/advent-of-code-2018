@@ -17,8 +17,13 @@ main = either renderError return =<< runExceptT runMain
 runMain :: ExceptT IOException IO ()
 runMain = do
   opts <- liftIO $ getOptions
-  p <- getInput opts
-  runProblem p
+  input <- getSource $ opts
+  case problem opts of
+    PartA -> runA input
+    -- PartB -> runB input
+    Both -> do
+      runA input
+      -- runB input
 
 pause :: IO ()
 pause = do
@@ -29,9 +34,9 @@ pauseAfter f = \w -> do
   f w
   pause
 
-runProblem :: (Problem, [String]) -> ExceptT IOException IO ()
-runProblem (problem, input) = do
-  let (dungeon, units) = initial problem input
+runA :: [String] -> ExceptT IOException IO ()
+runA input = do
+  let (dungeon, units) = initial 3 input
   liftIO $ do
     let (history, turns) = play dungeon units
     sequence_ . fmap (pauseAfter (uncurry $ flip showState dungeon)) . zip [0..] $ history

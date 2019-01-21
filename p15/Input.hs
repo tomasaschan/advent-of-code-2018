@@ -1,15 +1,15 @@
-module Input (getInput) where
+module Input where
 
 import CLI
 
 import Control.Exception (try, IOException)
 import Control.Monad.Except
 
-import Solvers.Dec15
+data Part = PartA | PartB | Both deriving (Show, Eq)
 
-problem :: Options -> Problem
-problem (Options { solvePart1 = True, solvePart2 = False }) = A
-problem (Options { solvePart1 = False, solvePart2 = True }) = B
+problem :: Options -> Part
+problem (Options { solvePart1 = True, solvePart2 = False }) = PartA
+problem (Options { solvePart1 = False, solvePart2 = True }) = PartB
 problem _ = Both
 
 getSource :: Options -> ExceptT IOException IO [String]
@@ -26,7 +26,7 @@ getSource (Options { inputFrom = StdIn }) = either throwError return =<< liftIO 
       contents <- getContents
       return $ lines contents
 
-getInput :: Options -> ExceptT IOException IO (Problem, [String])
+getInput :: Options -> ExceptT IOException IO (Part, [String])
 getInput opts = do
   let p = problem opts
   input <- getSource opts

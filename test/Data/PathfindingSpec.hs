@@ -22,19 +22,3 @@ spec = describe "Shortest path searching" $ do
       prio [(x1, y)] `compare` prio [(x2, y)] == x1 `compare` x2
     prop "same-length discriminates on first differing" $ \x1 -> \x2 -> \y1 -> \y2 ->
       prio [(x1,y1),(x2,y2)] `compare` prio [(x1,y1),(x2,y1)] == y2 `compare` y1
-
-  context "without obstacles" $ do
-    let walkable (x,y) = abs(x) < 10 && abs(y) < 10
-    let nexts c = let add (x,y) (x',y') = (x+x',y+y') :: (Int,Int)
-                  in fmap (add c) [(0,1),(-1,0),(1,0),(0,-1)] :: [(Int,Int)]
-
-    context "with single target right next to source" $ do
-      let source = (2,3)
-      let targets = [(3,3)]
-      it "finds a path with both coordinates" $ do
-        shortestPathReadingOrder walkable nexts source targets `shouldBe` (Just [(2,3), (3,3)])
-    context "with a few squares in between" $ do
-      let source = (2,3)
-      let targets = [(4,6)]
-      it "finds the shortest path in reading order" $ do
-        shortestPathReadingOrder walkable nexts source targets `shouldBe` (Just [(2,3), (3,3), (4,3), (4,4), (4,5), (4,6)])
