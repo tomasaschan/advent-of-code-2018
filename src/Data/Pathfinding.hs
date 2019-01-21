@@ -13,8 +13,12 @@ shortestPathReadingOrder walkable nexts source targets =
     -- we want to prioritize first by length, then by reading order on the first differing position
     -- tuples and lists are sorted lexically, so two lists of (y,x) pairs will sort according to
     -- the first one that differs, and (y,x) sorts in reading order
-    prio path = (length path, fmap swap . reverse $ path)
-    len (l,_) = l
+    prio path = (l, t, p)
+      where
+        l = length path
+        t = swap . head $ path
+        p = fmap swap . reverse $ path
+    len (l,_,_) = l
   in shortestPath walkable nexts prio len source targets
 
 shortestPath :: (Ord a, Ord p) => (a -> Bool) -> (a -> [a]) -> ([a] -> p) -> (p -> Int) -> a -> [a] -> Maybe [a]

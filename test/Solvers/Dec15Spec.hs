@@ -2,7 +2,9 @@ module Solvers.Dec15Spec where
 
 import Test.Hspec
 import Solvers.Dec15
+import Data.Pathfinding
 
+import GHC.Exts (the)
 import Data.Map (fromList)
 
 spec :: Spec
@@ -152,3 +154,50 @@ spec = describe "Dec 15" $ do
       let (World dungeon units) = initial A input
       let answer = solveA . play dungeon $ units
       answer `shouldBe` (20, 937, 18740)
+
+  context "pathfinding" $ do
+    it "chooses the correct target square" $ do
+      let world = [
+                    "#######",
+                    "#E..G.#",
+                    "#...#.#",
+                    "#.G.#G#",
+                    "#######"
+                  ]
+      let (World dungeon units) = initial A world
+      let targets = foldMap (inRangeOf . position) . filter ((==) Goblin . race) $ units
+      let (Just path) = shortestPathReadingOrder (walkable (World dungeon units)) inRangeOf (1,1) targets
+      last path `shouldBe` (3,1)
+
+    it "chooses the correct square to move to" $ do
+      let (World dungeon _) = initial A [
+                                              "#######",
+                                              "#.....#",
+                                              "#.....#",
+                                              "#.....#",
+                                              "#######"
+                                            ]
+      let mover = Unit Elf (2,1) 0 0
+      let rest = [Unit Goblin (4,3) 0 0]
+      let targets = inRangeOf (4,3)
+
+      let moved = move (walkable (World dungeon rest)) targets mover
+      position moved `shouldBe` (3,1)
+
+    it "finds cadaker's subtle bug" $ do
+      let (World dungeon units) = initial A ["#######","#..E..#","#.###.#","#.#...#","#...#.#","###G###","#######"]
+      let mover = the . filter ((==) Elf . race) $ units
+      let target = the . filter ((==) Goblin . race) $ units
+      let targets = inRangeOf . position $ target
+      let moved = move (walkable (World dungeon units)) targets mover
+
+      position moved `shouldBe` (2,1)
+
+    it "chooses targets in reading order" $ do
+      let (World dungeon units) = initial A ["######","#E...#","#.##.#","#..#.#","##.#.#","#..#.#","#.##.#","#..G.#","######"]
+      let mover = the . filter ((==) Elf . race) $ units
+      let target = the . filter ((==) Goblin . race) $ units
+      let targets = inRangeOf . position $ target
+      let moved = move (walkable (World dungeon units)) targets mover
+
+      position moved `shouldBe` (1,2)
