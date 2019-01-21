@@ -30,6 +30,8 @@ position :: Unit -> Coord
 position (Unit _ coord _ _) = coord
 race :: Unit -> Race
 race (Unit r _ _ _) = r
+is :: Race -> Unit -> Bool
+is r = (==) r . race
 hitPoints (Unit _ _ _ hp) = hp
 power :: Unit -> Attack
 power (Unit _ _ a _) = a
@@ -38,7 +40,7 @@ movedTo c (Unit r _ a hp) = Unit r c a hp
 type Dungeon = Map Coord Terrain
 size :: Dungeon -> Coord
 size = maximums . Map.keys
-data World = World Dungeon [Unit] deriving (Show, Eq)
+type World = (Dungeon, [Unit])
 
 data Err = Unknown String deriving (Show, Eq)
 
@@ -49,13 +51,20 @@ initial problem input =
   let
     dungeon = parseDungeon input
     units = parseUnits problem input
-  in World dungeon units
+  in (dungeon, units)
 
-solveA :: ([[Unit]], Int) -> (Int,Int,Int)
-solveA (history, turns) = (turns, totalHP, outcome)
+summarize :: ([[Unit]], Int) -> (Int, Int, Int, Int)
+summarize (history, turns) = (turns, totalHP, outcome, elvesAlive)
   where
     totalHP = totalHitPoints . last $ history
     outcome = turns * totalHP
+    elvesAlive = length . filter (is Elf) . last $ history
+
+outcome :: ([[Unit]], Int) -> Int
+outcome final = let (_,_,outcome,_) = summarize final in outcome
+
+solveA :: [String] -> String
+solveA = show . outcome . uncurry play . initial A
 
 play :: Dungeon -> [Unit] -> ([[Unit]], Turns)
 play dungeon units = turn dungeon [] [] units 0
@@ -88,7 +97,7 @@ makeMove dungeon prev this next = (prev', this', next')
   where
     others = prev ++ next
     targets = concatMap (inRangeOf . position) . filter (enemyOf this) $ others
-    canMoveTo = walkable (World dungeon others)
+    canMoveTo = walkable dungeon others
     this' = move canMoveTo targets this
     (prev', next') = attack this' prev next
 
@@ -119,8 +128,8 @@ enemyOf (Unit Elf _ _ _) (Unit Goblin _ _ _) = True
 enemyOf (Unit Goblin _ _ _) (Unit Elf _ _ _) = True
 enemyOf _ _ = False
 
-walkable :: World -> (Coord -> Bool)
-walkable (World dungeon units) = \c ->
+walkable :: Dungeon -> [Unit] -> (Coord -> Bool)
+walkable dungeon units = \c ->
   let
     terrain = fromMaybe Wall $ Map.lookup c dungeon
     occupied = c `elem` fmap position units

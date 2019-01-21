@@ -31,14 +31,14 @@ pauseAfter f = \w -> do
 
 runProblem :: (Problem, [String]) -> ExceptT IOException IO ()
 runProblem (problem, input) = do
-  let (World dungeon units) = initial problem input
+  let (dungeon, units) = initial problem input
   liftIO $ do
     let (history, turns) = play dungeon units
     sequence_ . fmap (pauseAfter (uncurry $ flip showState dungeon)) . zip [0..] $ history
     endCombat dungeon
 
-    let (_, totalHP, outcome) = solveA (history, turns)
-    putStrLn $ printf "Solution to A: %d (%d hp after %d finished rounds)" outcome totalHP turns
+    let (_, totalHP, oc, _) = summarize (history, turns)
+    putStrLn $ printf "Solution to A: %d (%d hp after %d finished rounds)" oc totalHP turns
 
 renderError :: Show e => e -> IO ()
 renderError e = putStrLn $ "Error: " ++ show e

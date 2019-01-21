@@ -85,16 +85,15 @@ spec = describe "Dec 15" $ do
                              ((0,5),Wall), ((1,5),Wall),   ((2,5),Wall),   ((3,5),Wall),   ((4,5),Wall),   ((5,5),Wall)
                            ]
     let units = [Unit Elf (1,1) 3 200, Unit Goblin (4,3) 3 200]
-    let world = World dungeon units
 
     it "does not allow walking into walls" $ do
-      walkable world (1,2) `shouldBe` False
+      walkable dungeon units (1,2) `shouldBe` False
     it "does not allow walking outside of the map" $ do
-      walkable world (6,4) `shouldBe` False
+      walkable dungeon units (6,4) `shouldBe` False
     it "does not allow walking into other units" $ do
-      walkable world (4,3) `shouldBe` False
+      walkable dungeon units (4,3) `shouldBe` False
     it "allows walking into unoccupied open spaces" $ do
-      walkable world (2,1) `shouldBe` True
+      walkable dungeon units (2,1) `shouldBe` True
 
   it "can sort units according to reading order" $ do
     let unsorted = [
@@ -121,39 +120,39 @@ spec = describe "Dec 15" $ do
   describe "examples for a" $ do
     it "full example" $ do
       let input = ["#######","#.G...#","#...EG#","#.#.#G#","#..G#E#","#.....#","#######"]
-      let (World dungeon units) = initial A input
-      let answer = solveA . play dungeon $ units
-      answer `shouldBe` (47, 590, 27730)
+      let (dungeon, units) = initial A input
+      let answer = summarize . play dungeon $ units
+      answer `shouldBe` (47, 590, 27730, 0)
 
     it "first example" $ do
       let input = ["#######","#G..#E#","#E#E.E#","#G.##.#","#...#E#","#...E.#","#######"]
-      let (World dungeon units) = initial A input
-      let answer = solveA . play dungeon $ units
-      answer `shouldBe` (37, 982, 36334)
+      let (dungeon, units) = initial A input
+      let answer = summarize . play dungeon $ units
+      answer `shouldBe` (37, 982, 36334, 5)
 
     it "second example" $ do
       let input = ["#######","#E..EG#","#.#G.E#","#E.##E#","#G..#.#","#..E#.#","#######"]
-      let (World dungeon units) = initial A input
-      let answer = solveA . play dungeon $ units
-      answer `shouldBe` (46, 859, 39514)
+      let (dungeon, units) = initial A input
+      let answer = summarize . play dungeon $ units
+      answer `shouldBe` (46, 859, 39514, 5)
 
     it "third example" $ do
       let input = ["#######","#E.G#.#","#.#G..#","#G.#.G#","#G..#.#","#...E.#","#######"]
-      let (World dungeon units) = initial A input
-      let answer = solveA . play dungeon $ units
-      answer `shouldBe` (35, 793, 27755)
+      let (dungeon, units) = initial A input
+      let answer = summarize . play dungeon $ units
+      answer `shouldBe` (35, 793, 27755, 0)
 
     it "fourth example" $ do
       let input = ["#######","#.E...#","#.#..G#","#.###.#","#E#G#G#","#...#G#","#######"]
-      let (World dungeon units) = initial A input
-      let answer = solveA . play dungeon $ units
-      answer `shouldBe` (54, 536, 28944)
+      let (dungeon, units) = initial A input
+      let answer = summarize . play dungeon $ units
+      answer `shouldBe` (54, 536, 28944, 0)
 
     it "fifth example" $ do
       let input = ["#########","#G......#","#.E.#...#","#..##..G#","#...##..#","#...#...#","#.G...G.#","#.....G.#","#########"]
-      let (World dungeon units) = initial A input
-      let answer = solveA . play dungeon $ units
-      answer `shouldBe` (20, 937, 18740)
+      let (dungeon, units) = initial A input
+      let answer = summarize . play dungeon $ units
+      answer `shouldBe` (20, 937, 18740, 0)
 
   context "pathfinding" $ do
     it "chooses the correct target square" $ do
@@ -164,13 +163,13 @@ spec = describe "Dec 15" $ do
                     "#.G.#G#",
                     "#######"
                   ]
-      let (World dungeon units) = initial A world
+      let (dungeon, units) = initial A world
       let targets = foldMap (inRangeOf . position) . filter ((==) Goblin . race) $ units
-      let (Just path) = shortestPathReadingOrder (walkable (World dungeon units)) inRangeOf (1,1) targets
+      let (Just path) = shortestPathReadingOrder (walkable dungeon units) inRangeOf (1,1) targets
       last path `shouldBe` (3,1)
 
     it "chooses the correct square to move to" $ do
-      let (World dungeon _) = initial A [
+      let (dungeon, _) = initial A [
                                               "#######",
                                               "#.....#",
                                               "#.....#",
@@ -181,23 +180,23 @@ spec = describe "Dec 15" $ do
       let rest = [Unit Goblin (4,3) 0 0]
       let targets = inRangeOf (4,3)
 
-      let moved = move (walkable (World dungeon rest)) targets mover
+      let moved = move (walkable dungeon rest) targets mover
       position moved `shouldBe` (3,1)
 
     it "finds cadaker's subtle bug" $ do
-      let (World dungeon units) = initial A ["#######","#..E..#","#.###.#","#.#...#","#...#.#","###G###","#######"]
+      let (dungeon, units) = initial A ["#######","#..E..#","#.###.#","#.#...#","#...#.#","###G###","#######"]
       let mover = the . filter ((==) Elf . race) $ units
       let target = the . filter ((==) Goblin . race) $ units
       let targets = inRangeOf . position $ target
-      let moved = move (walkable (World dungeon units)) targets mover
+      let moved = move (walkable dungeon units) targets mover
 
       position moved `shouldBe` (2,1)
 
     it "chooses targets in reading order" $ do
-      let (World dungeon units) = initial A ["######","#E...#","#.##.#","#..#.#","##.#.#","#..#.#","#.##.#","#..G.#","######"]
+      let (dungeon, units) = initial A ["######","#E...#","#.##.#","#..#.#","##.#.#","#..#.#","#.##.#","#..G.#","######"]
       let mover = the . filter ((==) Elf . race) $ units
       let target = the . filter ((==) Goblin . race) $ units
       let targets = inRangeOf . position $ target
-      let moved = move (walkable (World dungeon units)) targets mover
+      let moved = move (walkable dungeon units) targets mover
 
       position moved `shouldBe` (1,2)
