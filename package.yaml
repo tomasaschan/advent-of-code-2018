@@ -30,6 +30,9 @@ library:
     - split
     - sort
     - Unique
+  ghc-options:
+    - -Wall
+    - -O2
 
 executables:
   aoc:
@@ -39,6 +42,8 @@ executables:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
+      - -Wall
+      - -O2
     dependencies:
       - aoc
       - directory
@@ -67,6 +72,8 @@ tests:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
+      - -Wall
+      - -O2
     dependencies:
       - aoc
       - digits
