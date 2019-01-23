@@ -25,3 +25,7 @@ spec = describe "Dec 16" $ do
       let expected = Sample { before = fromList [2,3,2,2], operation = (15,3,2,2), after = fromList [2,3,4,2] }
 
       parseMaybe sample input `shouldBe` Just expected
+
+  it "counting matches" $ do
+    let s = Sample { before = fromList [3,2,1,1], operation = (9,2,1,2), after = fromList [3,2,2,1] }
+    matchCount s `shouldBe` 3

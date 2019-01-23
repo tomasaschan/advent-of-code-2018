@@ -6,12 +6,23 @@ module Solvers.Dec16 where
   import Text.ParserCombinators.Parsec
 
   import Data.Computer
+  import Debug.Trace
 
   solveA :: [String] -> String
-  solveA = show . parseA
+  solveA = show . length . filter (>=3) . fmap matchCount . parseA
 
   parseA :: [String] -> [Sample]
   parseA = catMaybes . fmap (parseMaybe sample) . splitOn "\n\n" . head . splitOn "\n\n\n" . unlines
+
+  matchCount :: Sample -> Int
+  matchCount = length . flip filter [minBound..maxBound] . flip matches
+
+  matches :: Op -> Sample -> Bool
+  matches op s = actual == expected
+    where
+      expected  = after s
+      (_,a,b,c) = operation s
+      actual    = apply op a b c $ before s
 
   data Sample = Sample {
     before :: Registry,
@@ -22,15 +33,15 @@ module Solvers.Dec16 where
   parseMaybe :: GenParser Char () a -> String -> Maybe a
   parseMaybe parser input = do
     case parse parser "input" input of
-      Left e -> Nothing
+      Left e -> trace (show e) Nothing
       Right s -> Just s
 
   sample :: GenParser Char st Sample
   sample = do
-    before <- string "Before:" *> whitespace *> registry <* newline
-    operation <- maskedOperation <* newline
-    after <- string "After:" *> whitespace *> registry
-    return Sample { before = before, after = after, operation = operation }
+    b <- string "Before:" *> whitespace *> registry <* newline
+    o <- maskedOperation <* newline
+    a <- string "After:" *> whitespace *> registry
+    return Sample { before = b, operation = o, after = a }
 
   registry :: GenParser Char st Registry
   registry = fmap fromList $ char '[' *> number `sepBy1` (string ", ") <* char ']'

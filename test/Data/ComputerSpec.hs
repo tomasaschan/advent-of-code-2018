@@ -1,9 +1,10 @@
 module Data.ComputerSpec where
 
 import Test.Hspec
+import Test.Hspec.QuickCheck
 import Data.Computer
 
-import Data.IntMap
+import qualified Data.IntMap
 
 spec :: Spec
 spec = describe "The computer" $ do
