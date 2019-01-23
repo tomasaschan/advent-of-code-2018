@@ -25,6 +25,7 @@ library:
     - digits
     - graphite
     - hashable
+    - parsec
     - PSQueue
     - split
     - sort
