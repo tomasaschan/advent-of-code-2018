@@ -1,18 +1,20 @@
 module Solvers.Dec16 where
 
-  import Data.List.Split (splitOn)
-  import Data.Maybe (catMaybes)
-
+  import Data.Maybe (fromJust)
   import Text.ParserCombinators.Parsec
+  import Control.Applicative (liftA2)
 
   import Data.Computer
   import Debug.Trace
 
-  solveA :: [String] -> String
-  solveA = show . length . filter (>=3) . fmap matchCount . parseA
+  data Sample = Sample {
+    before :: Registry,
+    operation :: (Int,Int,Int,Int),
+    after :: Registry
+  } deriving (Eq, Show)
 
-  parseA :: [String] -> [Sample]
-  parseA = catMaybes . fmap (parseMaybe sample) . splitOn "\n\n" . head . splitOn "\n\n\n" . unlines
+  solveA :: [String] -> String
+  solveA = show . length . filter (>=3) . fmap matchCount . fst . fromJust . parseMaybe parseInput . unlines
 
   matchCount :: Sample -> Int
   matchCount = length . flip filter [minBound..maxBound] . flip matches
@@ -24,23 +26,27 @@ module Solvers.Dec16 where
       (_,a,b,c) = operation s
       actual    = apply op a b c $ before s
 
-  data Sample = Sample {
-    before :: Registry,
-    operation :: (Int,Int,Int,Int),
-    after :: Registry
-  } deriving (Eq, Show)
-
   parseMaybe :: GenParser Char () a -> String -> Maybe a
   parseMaybe parser input = do
     case parse parser "input" input of
       Left e -> trace (show e) Nothing
       Right s -> Just s
 
+  parseInput :: GenParser Char () ([Sample], [(Int,Int,Int,Int)])
+  parseInput = do
+    samples <- sample `sepTry` (count 2 newline) <* count 4 newline
+    operations <- maskedOperation `sepTry` newline <* newline <* eof
+    return (samples, operations)
+    where
+      -- see https://stackoverflow.com/a/54336966/38055
+      sepTry a sep = sepTry1 a sep <|> pure []
+      sepTry1 a sep = liftA2 (:) a (many (try $ sep *> a))
+
   sample :: GenParser Char st Sample
   sample = do
-    b <- string "Before:" *> whitespace *> registry <* newline
+    b <- string "Before:" *> spaces *> registry <* newline
     o <- maskedOperation <* newline
-    a <- string "After:" *> whitespace *> registry
+    a <- string "After:" *> spaces *> registry
     return Sample { before = b, operation = o, after = a }
 
   registry :: GenParser Char st Registry
@@ -55,5 +61,3 @@ module Solvers.Dec16 where
 
   number :: GenParser Char st Int
   number = fmap read $ many1 digit
-  whitespace :: GenParser Char st String
-  whitespace = many (oneOf " \t")
