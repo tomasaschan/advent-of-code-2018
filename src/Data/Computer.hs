@@ -13,7 +13,7 @@ module Data.Computer where
     | SetR | SetI
     | GtIR | GtRI | GtRR
     | EqIR | EqRI | EqRR
-    deriving (Show, Eq, Enum, Bounded)
+    deriving (Show, Eq, Enum, Bounded, Ord)
 
   apply :: Op -> Int -> Int -> Int -> Registry -> Registry
   apply AddR x y z r = setValue z (valueAt x r  +  valueAt y r) r
