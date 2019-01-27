@@ -15,9 +15,9 @@ spec = describe "Dec 17" $ do
       parse coords "range" "1..23" `shouldBe` Right [1..23]
     describe "parsing x-coordinates" $ do
       it "parses a single coord" $ do
-        parse xs "x" "x=7" `shouldBe` Right [7]
+        parse pXs "x" "x=7" `shouldBe` Right [7]
       it "parses a range" $ do
-        parse xs "xs" "x=7..12" `shouldBe` Right [7..12]
+        parse pXs "xs" "x=7..12" `shouldBe` Right [7..12]
     it "parses a horizontal vein" $ do
       parse horizontal "horiz" "y=1624, x=484..503" `shouldBe` Right ([484..503], [1624])
     it "parses a vertical vein" $ do
