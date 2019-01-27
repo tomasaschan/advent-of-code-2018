@@ -1,7 +1,7 @@
 module Solvers.Dec16 where
 
+  import Data.Either.Extended
   import Data.Maybe (fromJust, catMaybes)
-  import Data.Either (foldAll)
   import Text.ParserCombinators.Parsec
   import Control.Applicative (liftA2)
   import Control.Arrow ((^>>))
