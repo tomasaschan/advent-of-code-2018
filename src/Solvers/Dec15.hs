@@ -12,8 +12,7 @@ import Data.Function (on)
 import Data.Bifunctor (bimap)
 import Data.Tuple (swap)
 import Data.Pathfinding
-import Data.Foldable (toList)
-import Utils.Foldable (maximums)
+import Data.Foldable.Extended (toList, maximums)
 import Utils.List (readingOrder)
 import Data.Sequence (Seq((:<|)))
 import qualified Data.Sequence as Seq
