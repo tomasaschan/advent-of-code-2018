@@ -1,4 +1,4 @@
-name: utils
+name: p13
 version: 0.2.0.0
 github: "tomasaschan/advent-of-code-2018"
 license: MIT
@@ -13,10 +13,25 @@ library:
   dependencies:
     - base
     - containers
-    - PSQueue
+    - Unique
+    - utils
+
+executables:
+  p13:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -Wall
+    dependencies:
+      - p13
+      - base
+      - utils
 
 tests:
-  utils-tests:
+  p13-tests:
     main: Spec.hs
     source-dirs: test
     ghc-options:
@@ -25,9 +40,9 @@ tests:
       - -with-rtsopts=-N
       - -Wall
     dependencies:
-      - utils
+      - p13
       - base
       - containers
       - hspec
-      - PSQueue
       - QuickCheck
+      - utils
