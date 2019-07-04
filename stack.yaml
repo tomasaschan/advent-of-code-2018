@@ -3,6 +3,7 @@ packages:
   - utils
   - p01
   - p02
+  - p03
   # PROBLEM
 extra-deps:
   - graphite-0.9.8.0
