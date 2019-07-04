@@ -1,0 +1,43 @@
+name: p05
+version: 0.2.0.0
+github: "tomasaschan/advent-of-code-2018"
+license: MIT
+author: "Tomas Aschan"
+maintainer: "1550920+tomasaschan@users.noreply.github.com"
+copyright: "2018 Tomas Aschan"
+
+library:
+  source-dirs: lib
+  ghc-options:
+    - -Wall
+  dependencies:
+    - base
+
+executables:
+  p05:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -Wall
+    dependencies:
+      - p05
+      - base
+      - utils
+
+tests:
+  p05-tests:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -Wall
+    dependencies:
+      - p05
+      - base
+      - hspec
+      - QuickCheck
