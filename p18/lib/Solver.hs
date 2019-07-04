@@ -65,7 +65,7 @@ surroundings m (x, y) =
     ]
 
 hasAtLeast :: Eq a => Int -> a -> [a] -> Bool
-hasAtLeast n _s = (<=) n . length . filter ((==) _s)
+hasAtLeast n s = (>= n) . length . filter (== s)
 
 next :: State -> [State] -> State
 next Open s
@@ -87,8 +87,8 @@ resourceValue :: CollectionArea -> Int
 resourceValue m = lumbered * milled
   where
     states = map snd . toList $ m
-    lumbered = length . filter ((==) Trees) $ states
-    milled = length . filter ((==) Lumbermill) $ states
+    lumbered = length . filter (== Trees) $ states
+    milled = length . filter (== Lumbermill) $ states
 
 displayState :: State -> Char
 displayState Open       = '.'
