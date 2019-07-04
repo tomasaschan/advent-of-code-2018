@@ -4,6 +4,7 @@ packages:
   - p01
   - p02
   - p03
+  - p04
   # PROBLEM
 extra-deps:
   - graphite-0.9.8.0
