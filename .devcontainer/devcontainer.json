@@ -1,3 +1,9 @@
 {
-    "dockerFile": "Dockerfile"
+    "dockerFile": "Dockerfile",
+    "runArgs": [
+        "-v",
+        "${env:USERPROFILE}/.gitconfig:/root/.gitconfig:ro",
+        "-v",
+        "vscode-server-insiders:/root/.vscode-server-insiders"
+    ]
 }
