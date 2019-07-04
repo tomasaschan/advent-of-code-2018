@@ -1,6 +1,7 @@
-resolver: lts-12.14
+resolver: lts-13.26
 packages:
-  - .
+  - utils
+  # PROBLEM
 extra-deps:
   - graphite-0.9.8.0
   - PSQueue-1.1.0.1
