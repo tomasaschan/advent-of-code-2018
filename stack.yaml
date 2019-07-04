@@ -7,9 +7,12 @@ packages:
   - p04
   - p05
   - p06
+  - p07
+  - p08
   # PROBLEM
 extra-deps:
   - graphite-0.9.8.0
+  - graphviz-2999.20.0.3
   - PSQueue-1.1.0.1
   - Unique-0.4.7.5
 flags: {}

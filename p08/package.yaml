@@ -1,4 +1,4 @@
-name: utils
+name: p08
 version: 0.2.0.0
 github: "tomasaschan/advent-of-code-2018"
 license: MIT
@@ -12,10 +12,25 @@ library:
     - -Wall
   dependencies:
     - base
-    - containers
+    - split
+    - utils
+
+executables:
+  p08:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -Wall
+    dependencies:
+      - p08
+      - base
+      - utils
 
 tests:
-  utils-tests:
+  p08-tests:
     main: Spec.hs
     source-dirs: test
     ghc-options:
@@ -24,7 +39,7 @@ tests:
       - -with-rtsopts=-N
       - -Wall
     dependencies:
-      - utils
+      - p08
       - base
       - hspec
       - QuickCheck

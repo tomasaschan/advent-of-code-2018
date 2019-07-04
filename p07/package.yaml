@@ -1,4 +1,4 @@
-name: utils
+name: p07
 version: 0.2.0.0
 github: "tomasaschan/advent-of-code-2018"
 license: MIT
@@ -13,9 +13,27 @@ library:
   dependencies:
     - base
     - containers
+    - graphite
+    - hashable
+    - sort
+    - utils
+
+executables:
+  p07:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -Wall
+    dependencies:
+      - p07
+      - base
+      - utils
 
 tests:
-  utils-tests:
+  p07-tests:
     main: Spec.hs
     source-dirs: test
     ghc-options:
@@ -24,7 +42,7 @@ tests:
       - -with-rtsopts=-N
       - -Wall
     dependencies:
-      - utils
+      - p07
       - base
       - hspec
       - QuickCheck
