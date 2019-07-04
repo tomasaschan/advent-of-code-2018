@@ -12,6 +12,7 @@ packages:
   - p09
   - p10
   - p11
+  - p12
   # PROBLEM
 extra-deps:
   - graphite-0.9.8.0
