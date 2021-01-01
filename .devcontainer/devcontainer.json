@@ -1,9 +1,9 @@
 {
-    "dockerFile": "Dockerfile",
-    "runArgs": [
-        "-v",
-        "${env:USERPROFILE}/.gitconfig:/root/.gitconfig:ro",
-        "-v",
-        "vscode-server-insiders:/root/.vscode-server-insiders"
-    ]
+  "image": "docker.pkg.github.com/tomasaschan/vscode-devcontainers/haskell",
+  "mounts": [
+    "source=aoc-2018-stack,target=/home/dev/.stack,type=volume"
+  ],
+  "extensions": [
+    "haskell.haskell"
+  ]
 }
