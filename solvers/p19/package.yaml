@@ -1,0 +1,44 @@
+name: p19
+version: 0.2.0.0
+github: "tomasaschan/advent-of-code-2018"
+license: MIT
+author: "Tomas Aschan"
+maintainer: "1550920+tomasaschan@users.noreply.github.com"
+copyright: "2018 Tomas Aschan"
+
+library:
+  source-dirs: lib
+  ghc-options:
+    - -Wall
+  dependencies:
+    - base
+    - parsec
+
+executables:
+  p19:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -Wall
+    dependencies:
+      - p19
+      - base
+      - utils
+
+tests:
+  p19-tests:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -Wall
+    dependencies:
+      - p19
+      - base
+      - hspec
+      - QuickCheck

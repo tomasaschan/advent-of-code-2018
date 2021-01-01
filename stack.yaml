@@ -19,6 +19,7 @@ packages:
   - solvers/p16
   - solvers/p17
   - solvers/p18
+  - solvers/p19
   # PROBLEM
 extra-deps:
   - graphite-0.9.8.0
