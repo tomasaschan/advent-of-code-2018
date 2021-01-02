@@ -6,4 +6,6 @@ import           Solver
 main :: IO ()
 main = do
   putStrLn "Dec PROBLEM"
-  run2 solveA solveB
+  run1 "a" a
+
+  -- run2 a b

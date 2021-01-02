@@ -2,6 +2,6 @@
 
 PROBLEM=$1
 
-rm -rf p$PROBLEM
+rm -rf solvers/p$PROBLEM
 
 sed -i "/  - p$PROBLEM/d" stack.yaml
