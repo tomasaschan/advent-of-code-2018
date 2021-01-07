@@ -12,6 +12,7 @@ library:
     - -Wall
   dependencies:
     - base
+    - utils
 
 executables:
   PROBLEM:
