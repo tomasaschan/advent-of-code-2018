@@ -1,12 +1,23 @@
 module Solver where
 
-import Data.List (intercalate)
-
-import Parse
+import qualified Data.Map as Map
+import Parse2
 import Domain
 
-solve1 :: String -> String
-solve1 = either show (show . maximum . fmap lengthWithoutLoops . followAll []) . path
+exploreBase :: String -> Explored
+exploreBase = explore . createMap . path
+
+distances :: Explored -> [Int]
+distances (Explored _ m) = Map.elems m
 
 a :: [String] -> String
-a = intercalate "\n" . fmap solve1
+a = show . maximum . distances . exploreBase . head . stripComments
+
+b :: [String] -> String
+b = show . length . filter (>=1000) . distances . exploreBase . head . stripComments
+
+stripComments :: [String] -> [String]
+stripComments = filter (not . isComment)
+  where
+    isComment ('#':_) = True
+    isComment _       = False

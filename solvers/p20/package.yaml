@@ -14,6 +14,7 @@ library:
     - base
     - containers
     - parsec
+    - utils
 
 executables:
   p20:
@@ -27,6 +28,7 @@ executables:
     dependencies:
       - p20
       - base
+      - containers
       - utils
 
 tests:

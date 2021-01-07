@@ -16,6 +16,7 @@ run1 label solver = do
   input <- readInput
   let answer = solver input
   printPartialSolution label answer
+  putStrLn "done!"
 
 run2 :: ([String] -> String) -> ([String] -> String) -> IO ()
 run2 a b = do
@@ -24,3 +25,4 @@ run2 a b = do
   let b' = b input
   printPartialSolution "a" a'
   printPartialSolution "b" b'
+  putStrLn "done!"

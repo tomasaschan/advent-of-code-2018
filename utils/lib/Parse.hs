@@ -82,4 +82,3 @@ where
       digit ('8':rest) = (Just '8', rest)
       digit ('9':rest) = (Just '9', rest)
       digit x = (Nothing, x)
-
