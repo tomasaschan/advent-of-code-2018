@@ -2,7 +2,6 @@
 
 module Domain where
 
-import Debug.Trace
 import           Data.Function
 import           Data.List -- (intercalate, intersperse)
 import           Data.Foldable.Extended

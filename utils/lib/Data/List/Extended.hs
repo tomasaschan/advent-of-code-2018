@@ -5,7 +5,6 @@ module Data.List.Extended
   , module Data.List
   ) where
 
-import           Data.Foldable (foldl')
 import           Data.List
 import qualified Data.Set      as Set
 

@@ -7,7 +7,6 @@ import           Data.Sequence (Seq ((:<|), Empty))
 import qualified Data.Sequence as Seq
 import           Data.Set      (Set)
 import qualified Data.Set      as Set
-import           Data.Tuple    (swap)
 
 bfsMapTraversal ::
      (Ord a, Ord p)
@@ -20,12 +19,13 @@ bfsMapTraversal ::
 bfsMapTraversal walkable neigbors prio start ends =
   _bfs
     Set.empty
-    (Q.singleton (Seq.singleton $ start) (prio . Seq.singleton $ start))
+    (Q.singleton (Seq.singleton start) (prio . Seq.singleton $ start))
   where
     _bfs seen q =
       case Q.minView q of
         Nothing -> Nothing
-        Just ((here :<| path) :-> p, q')
+        Just (Empty :-> _, _) -> Nothing
+        Just ((here :<| path) :-> _, q')
           | here `Set.member` ends -> Just . Seq.reverse $ here :<| path
           | here `Set.member` seen -> _bfs seen q'
           | otherwise ->

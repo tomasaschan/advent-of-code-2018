@@ -1,6 +1,5 @@
 module Solver where
 
-import           Data.List       (filter)
 import           Data.Map.Strict (Map, empty, fromList, insert, lookup, toList)
 import           Data.Maybe      (catMaybes)
 import           Prelude         hiding (lookup)
