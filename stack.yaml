@@ -21,6 +21,7 @@ packages:
   - solvers/p18
   - solvers/p19
   - solvers/p20
+  - solvers/p21
   # PROBLEM
 extra-deps:
   - graphite-0.9.8.0

@@ -10,7 +10,7 @@ a = either show (show . sum . factorize . findTargetNumber 0) . program
 b :: [String] -> String
 b = either show (show . sum . factorize . findTargetNumber 1) . program
 
-data S = S Register Int Memory
+data S = S Register Int Memory deriving (Show)
 instance State S where
    register (S r _ _) = r
    ip       (S _ p _) = p

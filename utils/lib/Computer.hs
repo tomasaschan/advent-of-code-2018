@@ -27,7 +27,7 @@ class State a where
    set r v s = withMemory (set' r (Immediate v) $ memory s) s
    get :: Reference -> a -> Int
    get r = get' r . memory
-   
+
 data Instruction = Add Register  Reference Register
                  | Mul Register  Reference Register
                  | Div Register  Reference Register
@@ -105,7 +105,7 @@ terminated :: State s => Program s -> s -> Bool
 terminated (Program instructions) s = ip s < 0 || length instructions <= ip s
 
 runUntil :: (State s, Show s) => (Program s -> s -> Bool) -> Program s -> s -> s
-runUntil done p s = 
+runUntil done p s =
    if terminated p s || done p s
    then s
    else runUntil done p $ runOne s

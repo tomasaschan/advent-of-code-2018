@@ -1,7 +1,6 @@
 module Data.ComputerSpec where
 
 import Test.Hspec
-import Test.Hspec.QuickCheck
 import Data.Computer
 
 import qualified Data.IntMap
