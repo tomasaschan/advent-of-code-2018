@@ -12,7 +12,7 @@ library:
     - -Wall
   dependencies:
     - base
-    - parsec
+    - utils
 
 executables:
   p19:

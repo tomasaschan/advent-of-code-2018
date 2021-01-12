@@ -2,20 +2,29 @@ module Solver where
 
 import Computer
 
-import qualified Parse
+import Computer.Parse
 
 a :: [String] -> String
-a = either show (show . sum . factorize . findTargetNumber 0) . Parse.program
+a = either show (show . sum . factorize . findTargetNumber 0) . program
 
 b :: [String] -> String
-b = either show (show . sum . factorize . findTargetNumber 1) . Parse.program
+b = either show (show . sum . factorize . findTargetNumber 1) . program
+
+data S = S Register Int Memory
+instance State S where
+   register (S r _ _) = r
+   ip       (S _ p _) = p
+   memory   (S _ _ m) = m
+
+   withMemory m (S r p _) = S r p m
+   withIp p (S r _ m)     = S r p m
 
 findTargetNumber :: Int -> (Register, [Instruction]) -> Int
 findTargetNumber r0 input =
    let
-      (p, s) = initialize r0 input
-      done _ (State _ ip _) = ip == 2
-      s' = runUntil done p s
+      initialize (ptr, is) = (Program $ Op <$> is, S ptr 0 $ set' Zero (Immediate r0) zeroed)
+      (p, s) = initialize input
+      s' = runUntil (const ((==2) . ip)) p s
    in get (Register Five) s'
 
 factorize :: Int -> [Int]
