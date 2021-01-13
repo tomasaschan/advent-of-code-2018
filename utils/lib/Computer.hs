@@ -54,7 +54,7 @@ newtype Memory = Memory (Int, Int, Int, Int, Int, Int)
               deriving (Eq)
 
 instance Show Memory where
-   show (Memory (a,b,c,d,e,f))= printf "%3d %3d %3d %6d %6d %14d" a b c d e f
+   show (Memory (a,b,c,d,e,f))= printf "%3d %6d %6d %10d %10d %14d" a b c d e f
 
 zeroed :: Memory
 zeroed = Memory (0,0,0,0,0,0)
