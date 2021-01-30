@@ -2,34 +2,39 @@
 
 module Cave where
 
-import Data.Default.Class
 import Data.Foldable.Extended
 import Data.Map hiding (foldl)
 import Data.List (intercalate)
 
-type Coord = (Int,Int)
+type Region = (Int,Int)
 
-draw :: Show a => Map Coord a -> String
+newtype Depth = Depth Int deriving (Eq, Show)
+newtype ErosionLevel = ErosionLevel Int deriving (Eq, Show)
+newtype GeologicIndex = GeologicIndex Int deriving (Eq, Show)
+newtype Target = Target Region deriving (Eq, Show)
+
+(===) :: Target -> Region -> Bool
+(Target t) === r = t == r
+
+draw :: Show a => Map Region a -> String
 draw m =
     let
         ((xmin,ymin),(xmax,ymax)) = mapSize . keys $ m
         line y = concat [show $ m ! (x,y) | x <- [xmin..xmax]]
     in intercalate "\n" [line y | y <- [ymin..ymax]]
 
-newtype Erosion = Erosion (Map Coord Int)
-instance Default Erosion where
-    def = Erosion Data.Map.empty
+data ErosionMap = ErosionMap Depth Target (Map Region ErosionLevel)
 
-instance Show Erosion where
-    show (Erosion e) = draw e
+emptyErosion :: Depth -> Target -> ErosionMap
+emptyErosion depth target = ErosionMap depth target empty
+
+instance Show ErosionMap where
+    show (ErosionMap _ _ e) = draw e
 
 data Type = Rocky
           | Wet
           | Narrow
-newtype Cave = Cave (Map Coord Type)
-
-instance Default Cave where
-    def = Cave Data.Map.empty
+newtype Cave = Cave (Map Region Type)
 
 instance Show Type where
     show Rocky  = "."
@@ -38,40 +43,48 @@ instance Show Type where
 instance Show Cave where
     show (Cave c) = draw c
 
+(***) :: ErosionLevel -> ErosionLevel -> GeologicIndex
+(ErosionLevel a) *** (ErosionLevel b) = GeologicIndex (a * b)
 
+(!!!) :: ErosionMap -> Region -> ErosionLevel
+(ErosionMap _ _ m) !!! r = 
+    if r `member` m 
+    then m ! r
+    else error $ show r ++ " has not been explored yet!"
 
-geologicIndex :: Map Coord Int -> Int -> Coord -> Coord -> Int
-geologicIndex _    _ _      (0,0)                   = 0
-geologicIndex _    _ target coord | target == coord = 0
-geologicIndex _    _ _      (x,0)                   = x * 16807
-geologicIndex _    _ _      (0,y)                   = y * 48271
-geologicIndex cave _ _      (x,y)                   = (cave ! (x-1, y)) * (cave ! (x, y-1))
+geologicIndex :: ErosionMap -> Region -> GeologicIndex
+geologicIndex _                       (0,0)                      = GeologicIndex 0
+geologicIndex (ErosionMap _ target _) region | target === region = GeologicIndex 0
+geologicIndex _                       (x,0)                      = GeologicIndex $ x * 16807
+geologicIndex _                       (0,y)                      = GeologicIndex $ y * 48271
+geologicIndex erosionMap              (x,y)                      = (erosionMap !!! (x-1,y)) *** (erosionMap !!! (x, y-1))
 
-erosionLevel :: Map Coord Int -> Int -> Coord -> Coord -> Int
-erosionLevel cave depth target coord = (depth + geologicIndex cave depth target coord) `mod` 20183
+(+++) :: Depth -> GeologicIndex -> ErosionLevel
+(Depth d) +++ (GeologicIndex i) = ErosionLevel ((d + i) `mod` 20183)
 
-coordsTo :: Coord -> [Coord]
+erosionLevel :: ErosionMap -> Region -> ErosionLevel
+erosionLevel (ErosionMap depth target cave) coord = depth +++ geologicIndex (ErosionMap depth target cave) coord
+
+coordsTo :: Region -> [Region]
 coordsTo (x,y) = coordsTo' (0,0)
     where
         coordsTo' (x',y') | x' == x && y' == y = [(x',y')]
         coordsTo' (x',y') |            y' == y =  (x',y') : coordsTo' (x'+1, 0   )
         coordsTo' (x',y')                      =  (x',y') : coordsTo' (x',   y'+1)
 
+explore :: Region -> ErosionMap -> ErosionMap
+explore coord (ErosionMap d t cave) | coord `member` cave = ErosionMap d t cave
+explore coord  erosion                                 = foldl folder erosion (coordsTo coord)
+    where folder (ErosionMap d t m) c | c `member` m = ErosionMap d t m
+          folder (ErosionMap d t m) c                = ErosionMap d t $ insert c (erosionLevel (ErosionMap d t m) c) m
 
-explore :: Int -> Coord -> Coord -> Erosion -> Erosion
-explore _     _      coord (Erosion cave) | coord `member` cave = Erosion cave
-explore depth target coord erosion                              = foldl folder erosion (coordsTo coord)
-    where folder (Erosion e) c | c `member` e = Erosion e
-          folder (Erosion e) c                = Erosion $ insert c (erosionLevel e depth target c) e
-
-assess :: Erosion -> Cave
-assess (Erosion e) = Cave $ toType . flip mod 3 <$> e
+assess :: ErosionLevel -> Type
+assess (ErosionLevel e) = assess' $ e `mod` 3
     where
-        toType 0 = Rocky
-        toType 1 = Wet
-        toType 2 = Narrow
-        toType _ = undefined
-
+        assess' 0 = Rocky
+        assess' 1 = Wet
+        assess' 2 = Narrow
+        assess' _ = undefined
 
 riskLevel :: Type -> Int
 riskLevel Rocky  = 0

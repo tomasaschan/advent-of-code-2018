@@ -12,8 +12,8 @@ library:
     - -Wall
   dependencies:
     - base
-    - data-default-class
     - containers
+    - PSQueue
     - utils
 
 executables:
