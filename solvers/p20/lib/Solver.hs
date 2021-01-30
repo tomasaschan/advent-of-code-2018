@@ -1,7 +1,7 @@
 module Solver where
 
 import qualified Data.Map as Map
-import Parse2
+import Parse
 import Domain
 
 exploreBase :: String -> Explored

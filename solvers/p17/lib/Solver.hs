@@ -9,7 +9,6 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Set (Set)
 import qualified Data.Set as Set
-import Text.Printf (printf)
 
 import Parser (underground)
 
@@ -113,30 +112,30 @@ countWet :: State -> Int
 countWet = count (const True)
   
 
-draw :: State -> String
-draw s =
-  let (State ug _) = s
-      ((minx, miny), (maxx, maxy)) = mapSize ug
-      xs = [minx - 3 .. maxx + 3]
-      ys = [(min 0 miny) .. maxy]
-      square 500 0 = '+'
-      square x y | isSettled x y s = '~'
-      square x y | isWet x y s     = '|'
-      square x y | isClay x y s    = '#'
-      square _ _                   = '.'
+-- draw :: State -> String
+-- draw s =
+--   let (State ug _) = s
+--       ((minx, miny), (maxx, maxy)) = mapSize ug
+--       xs = [minx - 3 .. maxx + 3]
+--       ys = [(min 0 miny) .. maxy]
+--       square 500 0 = '+'
+--       square x y | isSettled x y s = '~'
+--       square x y | isWet x y s     = '|'
+--       square x y | isClay x y s    = '#'
+--       square _ _                   = '.'
 
-      line y = printf "%5d " y ++ [square x y | x <- xs]
-      hundreds x = x `div` 100
-      tens x = (x `mod` 100) `div` 10
-      ones x = (x `mod` 10)
-      row100 = "      " ++ foldMap (show . hundreds) xs
-      row10 = "      " ++ foldMap (show . tens) xs
-      row1 = "      " ++ foldMap (show . ones) xs
+--       line y = printf "%5d " y ++ [square x y | x <- xs]
+--       hundreds x = x `div` 100
+--       tens x = (x `mod` 100) `div` 10
+--       ones x = (x `mod` 10)
+--       row100 = "      " ++ foldMap (show . hundreds) xs
+--       row10 = "      " ++ foldMap (show . tens) xs
+--       row1 = "      " ++ foldMap (show . ones) xs
 
-      drawing = unlines $ [row100, row10, row1] ++ fmap line ys
+--       drawing = unlines $ [row100, row10, row1] ++ fmap line ys
 
-      results = "Running: " ++ show (count (==Running) s :: Int) ++ "\n"
-             ++ "Settled: " ++ show (count (==Settled) s :: Int) ++ "\n"
-             ++ "  Total: " ++ show (count (const True) s :: Int)
+--       results = "Running: " ++ show (count (==Running) s :: Int) ++ "\n"
+--              ++ "Settled: " ++ show (count (==Settled) s :: Int) ++ "\n"
+--              ++ "  Total: " ++ show (count (const True) s :: Int)
 
-   in drawing ++ "\n\n" ++ results
+--    in drawing ++ "\n\n" ++ results

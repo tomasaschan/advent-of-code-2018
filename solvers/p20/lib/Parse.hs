@@ -1,48 +1,34 @@
-module Parse (path) where
+module Parse where
 
-path _ = undefined
--- import           Text.ParserCombinators.Parsec
--- import           Debug.Trace
--- import Domain
--- import Prelude hiding (sequence)
+import           Domain
 
--- seeNext :: Int -> GenParser Char u ()
--- seeNext n = do
---   s <- getParserState
---   let out = take n (stateInput s)
---   let pos = statePos s
---   traceShowM (pos,out)
+path :: String -> [Step]
+path ('^' : p) = path p
+path "$"       = []
 
--- path :: String -> Either ParseError Path
--- path = parse (string "^" *> path' <* string "$") "path"
+path ('N' : p) = Direction N : path p
+path ('E' : p) = Direction E : path p
+path ('S' : p) = Direction S : path p
+path ('W' : p) = Direction W : path p
 
--- path' :: GenParser Char st Path
--- path' = seeNext 100 >> (try sequence <|> Step <$> step)
+path ('(' : p) = let (f, p') = fork p in (Fork f : path p')
 
--- sequence :: GenParser Char st Path
--- sequence =  (<:>) <$> step <*> path'
+path (c : p)     = error $ "Unexpected: " ++ show c ++ " at " ++ show p
+path []          = error "Unexpected EOF"
 
--- step :: GenParser Char st Step
--- step = direction <|> fork
+fork :: String -> ([[Step]], String)
+fork = fork' [] []
+    where
+        fork' :: [[Step]] -> [Step] -> String -> ([[Step]], String)
+        fork' choices current (')' : p) =       (reverse current : choices,     p)
+        fork' choices current ('|' : p) = fork' (reverse current : choices) []  p
+        fork' choices current ('N' : p) = fork' choices (Direction N : current) p
+        fork' choices current ('E' : p) = fork' choices (Direction E : current) p
+        fork' choices current ('S' : p) = fork' choices (Direction S : current) p
+        fork' choices current ('W' : p) = fork' choices (Direction W : current) p
+        fork' choices current ('(' : p) =
+            let (f, p') = fork p
+            in fork' choices (Fork f : current) p'
 
--- direction :: GenParser Char st Step
--- direction = Direction <$> (n <|> e <|> s <|> w)
---     where n = string "N" >> return N
---           e = string "E" >> return E
---           s = string "S" >> return S
---           w = string "W" >> return W
-
--- fork :: GenParser Char st Step
--- fork = Fork <$> (open <*> fork' <*> close)
---     where
---         open :: GenParser Char st ([Path] -> [Path] -> [Path])
---         open = (\a b c -> a <> b <> c) <$> (try ([Empty] <$ string "(|") <|> [] <$ string "(")
-
---         close :: GenParser Char st [Path]
---         close =  [Empty] <$ string "|)" <|> [] <$ string ")"
-
---         fork' :: GenParser Char st [Path]
---         fork' = choices
-
--- choices :: GenParser Char st [Path]
--- choices = try ((:) <$> path') <*> many (try $ string "|" *> path')
+        fork' _       _       (c : _)  = error $ "Unexpected: " ++ show c
+        fork' _       _       []    = error "Unexpected EOF"

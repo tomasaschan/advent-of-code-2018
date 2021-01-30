@@ -4,7 +4,6 @@ import           Test.Hspec
 
 import           Solver
 
-import           Data.List  ((!!))
 import           Data.Map   ((!))
 
 spec :: Spec

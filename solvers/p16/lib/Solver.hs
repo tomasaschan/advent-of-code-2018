@@ -1,15 +1,12 @@
 module Solver where
 
 import           Control.Applicative           (liftA2)
-import           Control.Arrow                 ((^>>))
 import           Data.Computer
 import           Data.Either.Extended
 import           Data.IntMap                   (IntMap)
 import qualified Data.IntMap                   as IntMap
-import           Data.Maybe                    (catMaybes, fromJust)
 import           Data.Set                      (Set)
 import qualified Data.Set                      as Set
-import           Debug.Trace
 import           Text.ParserCombinators.Parsec
 
 data Sample =

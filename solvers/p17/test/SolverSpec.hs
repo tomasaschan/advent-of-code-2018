@@ -4,7 +4,7 @@ import           Data.Either.Extended
 import           Test.Hspec
 import           Text.ParserCombinators.Parsec (parse)
 
-import           Solver
+import           Parser
 
 spec :: Spec
 spec =

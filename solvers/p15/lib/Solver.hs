@@ -2,19 +2,16 @@ module Solver where
 
 import           Prelude                hiding (round)
 
-import           Data.Bifunctor         (bimap)
+import           Data.Bifunctor         (second)
 import           Data.Foldable.Extended (maximums, toList)
 import           Data.Function          (on)
 import           Data.List.Extended     (readingOrder, sortBy)
-import           Data.Map               (Map, (!))
-import qualified Data.Map               as Map (empty, fromList, keys, lookup,
-                                                member, toList)
-import           Data.Maybe             (catMaybes, fromMaybe, isJust,
-                                         listToMaybe)
+import           Data.Map               (Map)
+import qualified Data.Map               as Map (fromList, keys, lookup)
+import           Data.Maybe             (mapMaybe, fromMaybe, listToMaybe)
 import           Data.Pathfinding
 import           Data.Sequence          (Seq ((:<|)))
 import qualified Data.Sequence          as Seq
-import           Data.Set               (Set)
 import qualified Data.Set               as Set (fromList)
 import           Data.Tuple             (swap)
 
@@ -54,6 +51,7 @@ race (Unit r _ _ _) = r
 is :: Race -> Unit -> Bool
 is r = (==) r . race
 
+hitPoints :: Unit -> HP
 hitPoints (Unit _ _ _ hp) = hp
 
 power :: Unit -> Attack
@@ -69,7 +67,7 @@ size = maximums . Map.keys
 
 type World = (Dungeon, [Unit])
 
-data Err =
+newtype Err =
   Unknown String
   deriving (Show, Eq)
 
@@ -85,16 +83,16 @@ initial elfPower input =
    in (dungeon, units)
 
 summarize :: ([[Unit]], Int) -> (Int, Int, Int, Int)
-summarize (history, turns) = (turns, totalHP, outcome, elvesAlive)
+summarize (history, turns) = (turns, totalHP, outcome', elvesAlive)
   where
     totalHP = totalHitPoints . last $ history
-    outcome = turns * totalHP
+    outcome' = turns * totalHP
     elvesAlive = length . filter (is Elf) . last $ history
 
 outcome :: ([[Unit]], Int) -> Int
 outcome final =
-  let (_, _, outcome, _) = summarize final
-   in outcome
+  let (_, _, outcome', _) = summarize final
+   in outcome'
 
 solveA :: [String] -> String
 solveA = show . outcome . uncurry play . initial 3
@@ -106,9 +104,9 @@ findVictory :: Int -> [String] -> Int
 findVictory pwr input =
   let (dungeon, units) = initial pwr input
       elves = length . filter (is Elf) $ units
-      (_, _, outcome, elves') = summarize $ play dungeon units
+      (_, _, outcome', elves') = summarize $ play dungeon units
    in if elves == elves'
-        then outcome
+        then outcome'
         else findVictory (pwr + 1) input
 
 play :: Dungeon -> [Unit] -> ([[Unit]], Turns)
@@ -137,10 +135,10 @@ turn dungeon history moved [] turns =
   where
     history' = moved : history
 turn dungeon history moved (this:waiting) turns
-  | gameOver all = (reverse (all : history), turns)
+  | gameOver all' = (reverse (all' : history), turns)
   | otherwise = turn dungeon history (this' : moved') waiting' turns
   where
-    all = this : waiting ++ moved
+    all' = this : waiting ++ moved
     (moved', this', waiting') = makeMove dungeon moved this waiting
 
 makeMove :: Dungeon -> [Unit] -> Unit -> [Unit] -> ([Unit], Unit, [Unit])
@@ -157,7 +155,7 @@ move dungeon units targets this =
     then this
     else case shortestPathReadingOrder dungeon units (position this) targets of
            Just p ->
-             let (here:there:_) = p
+             let (_:there:_) = p
               in movedTo there this
            Nothing -> this
 
@@ -186,8 +184,7 @@ enemyOf (Unit Goblin _ _ _) (Unit Elf _ _ _) = True
 enemyOf _ _                                  = False
 
 walkable :: Dungeon -> [Unit] -> (Coord -> Bool)
-walkable dungeon units =
-  \c ->
+walkable dungeon units c =
     let terrain = fromMaybe Wall $ Map.lookup c dungeon
         occupied = c `elem` fmap position units
      in terrain == Cavern && not occupied
@@ -224,15 +221,15 @@ shortestPathReadingOrder dungeon units source targets
 parseUnits :: Int -> [String] -> [Unit]
 parseUnits pwr = foldMap coupleLine . zip [0 ..] . fmap (zip [0 ..])
   where
-    coupleLine (y, l) = catMaybes $ fmap (couplePoint y) l
+    coupleLine (y, l) = mapMaybe (couplePoint y) l
     couplePoint y (x, 'E') = Just $ Unit Elf (x, y) pwr 200
     couplePoint y (x, 'G') = Just $ Unit Goblin (x, y) 3 200
     couplePoint _ _        = Nothing
 
 parseDungeon :: [String] -> Dungeon
-parseDungeon lines =
-  let indexed = foldMap coupleLine . zip [0 ..] . fmap (zip [0 ..]) $ lines
-      parsed = fmap (bimap id parseTerrain) indexed
+parseDungeon lines' =
+  let indexed = foldMap coupleLine . zip [0 ..] . fmap (zip [0 ..]) $ lines'
+      parsed = fmap (second parseTerrain) indexed
    in Map.fromList parsed
   where
     coupleLine :: (Int, [(Int, Char)]) -> [((Int, Int), Char)]
@@ -245,12 +242,3 @@ parseDungeon lines =
     parseTerrain 'E' = Cavern
     parseTerrain 'G' = Cavern
     parseTerrain c   = error $ "Invalid input character: " ++ show c
-    untangle :: (Coord, Either Err Terrain) -> Either Err (Coord, Terrain)
-    untangle (c, Left e)  = Left e
-    untangle (c, Right t) = Right (c, t)
-    unlist :: [Either a b] -> Either a [b]
-    unlist [] = Right []
-    unlist ((Right x):xs) = do
-      rest <- unlist xs
-      return (x : rest)
-    unlist ((Left e):_) = Left e

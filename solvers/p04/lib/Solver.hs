@@ -1,7 +1,7 @@
 module Solver where
 
 import           Data.Function   (on)
-import           Data.List       (elemIndex, map, maximumBy, nub, sort)
+import           Data.List       (elemIndex, maximumBy, nub, sort)
 import           Data.List.Split
 import           Data.Map        (Map)
 import qualified Data.Map        as Map (alter, empty, toList)
