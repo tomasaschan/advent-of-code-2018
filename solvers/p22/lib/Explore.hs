@@ -1,12 +1,12 @@
-module Explore (findRudolph) where
+module Explore
+    ( findRudolph
+    ) where
 
-import           Debug.Trace
-import qualified Data.Map.Strict as Map
-import           Data.Map.Strict (Map)
-import           Data.PSQueue (Binding ((:->)), PSQ)
-import qualified Data.PSQueue as Q
+import qualified Data.Map.Strict               as Map
+import           Data.Map.Strict                ( Map )
+import           Data.PQueue.Prio.Min    hiding ( filter )
 
-import Cave
+import           Cave
 
 
 data Tool = Torch | ClimbingGear | Neither deriving (Eq, Ord, Show)
@@ -16,22 +16,29 @@ instance Show Time where
     show (Time t) = show t ++ " minutes"
 
 data Direction = N | S | E | W
-data Action = Move Direction | SwitchOnce | SwitchTwice
-allMoves :: [Action]
-allMoves = [Move N, Move S, Move E, Move W, SwitchOnce, SwitchTwice]
+data Rotation = CW | CCW
 
-data State = State Region Tool deriving (Eq, Ord, Show)
+allMoves :: [(Time, State) -> (Time, State)]
+allMoves = [move N, move S, move E, move W, switch CW, switch CCW]
 
-move :: Region -> Direction -> Region
-move (x,y) N = (x,y-1)
-move (x,y) S = (x,y+1)
-move (x,y) W = (x-1,y)
-move (x,y) E = (x+1,y)
+data State = State Region Tool
+    deriving (Eq, Ord, Show)
 
-switch :: Tool -> Tool
-switch Torch        = ClimbingGear
-switch ClimbingGear = Neither
-switch Neither      = Torch
+move :: Direction -> (Time, State) -> (Time, State)
+move N (t, State (x, y) tl) = (t ++> 1, State (x, y - 1) tl)
+move S (t, State (x, y) tl) = (t ++> 1, State (x, y + 1) tl)
+move W (t, State (x, y) tl) = (t ++> 1, State (x - 1, y) tl)
+move E (t, State (x, y) tl) = (t ++> 1, State (x + 1, y) tl)
+
+switch :: Rotation -> (Time, State) -> (Time, State)
+switch CW  (t, State r Torch       ) = (t ++> 7, State r ClimbingGear)
+switch CCW (t, State r Torch       ) = (t ++> 7, State r Neither)
+
+switch CW  (t, State r ClimbingGear) = (t ++> 7, State r Neither)
+switch CCW (t, State r ClimbingGear) = (t ++> 7, State r Torch)
+
+switch CW  (t, State r Neither     ) = (t ++> 7, State r Torch)
+switch CCW (t, State r Neither     ) = (t ++> 7, State r ClimbingGear)
 
 usable :: Type -> Tool -> Bool
 usable Wet    Torch        = False
@@ -46,56 +53,52 @@ usable Rocky  Torch        = True
 usable Rocky  ClimbingGear = True
 usable Rocky  Neither      = False
 
+isValid :: ErosionMap -> (Time, State) -> Bool
+isValid _ (_, State (x, y) _) | x < 0 || y < 0 || x > 35 = False
+isValid em (_, State r tool) = usable (typeAt em r) tool
+
 (++>) :: Time -> Int -> Time
 (Time t) ++> t' = Time (t + t')
 
 newtype Distance = Distance Int deriving (Eq, Show, Ord)
 
+newtype Seen = Seen (Map State Time)
+
+see :: Seen -> Time -> State -> Seen
+see (Seen ss) t s = Seen $ Map.insert s t ss
+
+timeTo :: Seen -> State -> Maybe Time
+timeTo (Seen ss) s = Map.lookup s ss
+
+isFastest :: Seen -> (Time, State) -> Bool
+isFastest seen (t, s) = maybe True (> t) $ timeTo seen s
+
 findRudolph :: Depth -> Target -> Time
-findRudolph depth (Target (tx,ty)) =
-    let bfs :: Map State Time -> PSQ State Time -> (Int,Int) -> Time
-        bfs seen q (xmax,ymax) =
-            case Q.minView q of
-                Nothing             -> Time (-1)
-                Just (s :-> t , _ )
-                    | s == goal     -> traceShow (s, goal, depth) t
-                Just (s :-> t, q') ->
-                    let seen' = storeMin s t seen
+findRudolph depth target =
+    let q0       = singleton (Time 0) (State (0, 0) Torch)
+        Target r = target
+        e0       = mapOutCave depth target
+        goal     = State r Torch
+        seen0    = Seen mempty
 
-                        sts' = filter isFastest . filter isValid . fmap (act s) $ allMoves
+        enqueueAll []            q = q
+        enqueueAll ((t, s) : nx) q = enqueueAll nx $ insert t s q
 
-                        q'' = insertMany sts' q'
+        bfs e q seen = case deleteFindMin q of
+            (_, q') | size q' > 10000 -> error "queue grew too big"
+            ((t, s), _) | s == goal -> t
+            ((t, s), q') | not $ isFastest seen (t, s) -> bfs e q' seen
+            ((t, s), q') ->
+                let State (x, y) _ = s
 
-                        State (x,y) _ = s
-                        (xmax',ymax') = if x > xmax || y > ymax
-                                        then traceShow (max x xmax, max y ymax, t) (max x xmax, max y ymax)
-                                        else (xmax,ymax)
+                    nexts =
+                        filter (isFastest seen) $ filter (isValid e') $ fmap
+                            (\m -> m (t, s))
+                            allMoves
 
-                        act (State r tl) (Move d)    = State (move r d) tl                   :-> t ++> 1
-                        act (State r tl) SwitchOnce  = State r          (switch tl)          :-> t ++> 7
-                        act (State r tl) SwitchTwice = State r          (switch $ switch tl) :-> t ++> 7
+                    seen'  = see seen t s
+                    queue' = enqueueAll nexts q'
 
-                        isValid ((State (x',y') _) :-> _) | notExplored (x',y') = False
-                        isValid ((State r      t') :-> _)                       = usable (assess $ erosion !!! r) t'
-
-                        isFastest (s' :-> t') = maybe True (t' <) $ Map.lookup s' seen
-
-                    in q'' `seq` seen' `seq` xmax' `seq` ymax' `seq` bfs seen' q'' (xmax',ymax')
-
-        insertMany []             = id
-        insertMany ((s:->p):rest) = insertMany rest . Q.insert s p
-
-        storeMin s t seen = Map.alter f s seen
-            where f Nothing   = Just t
-                  f (Just t') = Just $ min t t'
-
-        goal    = State (tx,ty) Torch
-        erosion = explore (10*tx,5*ty) $ emptyErosion depth (Target (tx,ty))
-
-        notExplored (x,y) = let ErosionMap _ _ e = erosion
-                             in (x,y) `Map.notMember` e
-        q0      = Q.singleton (State (0,0) Torch) (Time 0)
-
-
-
-    in bfs Map.empty q0 (0,0)
+                    e'     = explore (x + 1, y) $ explore (x, y + 1) e
+                in  bfs e' queue' seen'
+    in  bfs e0 q0 seen0

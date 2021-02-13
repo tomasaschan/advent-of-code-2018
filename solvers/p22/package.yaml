@@ -13,7 +13,7 @@ library:
   dependencies:
     - base
     - containers
-    - PSQueue
+    - pqueue
     - utils
 
 executables:
