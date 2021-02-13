@@ -1,25 +1,28 @@
 module Parser where
 
 import           Data.Either.Extended
-import           Data.List                     (isPrefixOf)
-import           Data.Ix                       (range)
-import           Data.Set                      (Set, fromList)
-import           Data.Tuple                    (swap)
+import           Data.List                      ( isPrefixOf )
+import           Data.Ix                        ( range )
+import           Data.Set                       ( Set
+                                                , fromList
+                                                )
+import           Data.Tuple                     ( swap )
 import           Text.ParserCombinators.Parsec
 
-underground :: [String] -> Either ParseError (Set (Int,Int))
-underground = fmap mapUnderground . foldAll . fmap (parse vein "vein") . stripComments
+underground :: [String] -> Either ParseError (Set (Int, Int))
+underground =
+  fmap mapUnderground . foldAll . fmap (parse vein "vein") . stripComments
 
 stripComments :: [String] -> [String]
-stripComments (l:ls) | "#" `isPrefixOf` l = stripComments ls
-stripComments (l:ls)                      = l : stripComments ls
-stripComments []                          = []
+stripComments (l : ls) | "#" `isPrefixOf` l = stripComments ls
+stripComments (l : ls)                      = l : stripComments ls
+stripComments []                            = []
 
 mapUnderground :: [([Int], [Int])] -> Set (Int, Int)
 mapUnderground = foldMap mapVein
 
 mapVein :: ([Int], [Int]) -> Set (Int, Int)
-mapVein (x, y) = fromList [(x', y') | x' <- x, y' <- y]
+mapVein (x, y) = fromList [ (x', y') | x' <- x, y' <- y ]
 
 vein :: GenParser Char st ([Int], [Int])
 vein = vertical <|> horizontal

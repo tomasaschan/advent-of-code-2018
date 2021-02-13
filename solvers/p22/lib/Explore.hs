@@ -1,6 +1,7 @@
 module Explore
-    ( findRudolph
-    ) where
+  ( findRudolph
+  )
+where
 
 import qualified Data.Map.Strict               as Map
 import           Data.Map.Strict                ( Map )
@@ -13,7 +14,7 @@ data Tool = Torch | ClimbingGear | Neither deriving (Eq, Ord, Show)
 newtype Time = Time Int deriving (Eq, Ord)
 
 instance Show Time where
-    show (Time t) = show t ++ " minutes"
+  show (Time t) = show t ++ " minutes"
 
 data Direction = N | S | E | W
 data Rotation = CW | CCW
@@ -75,30 +76,29 @@ isFastest seen (t, s) = maybe True (> t) $ timeTo seen s
 
 findRudolph :: Depth -> Target -> Time
 findRudolph depth target =
-    let q0       = singleton (Time 0) (State (0, 0) Torch)
-        Target r = target
-        e0       = mapOutCave depth target
-        goal     = State r Torch
-        seen0    = Seen mempty
+  let q0       = singleton (Time 0) (State (0, 0) Torch)
+      Target r = target
+      e0       = mapOutCave depth target
+      goal     = State r Torch
+      seen0    = Seen mempty
 
-        enqueueAll []            q = q
-        enqueueAll ((t, s) : nx) q = enqueueAll nx $ insert t s q
+      enqueueAll []            q = q
+      enqueueAll ((t, s) : nx) q = enqueueAll nx $ insert t s q
 
-        bfs e q seen = case deleteFindMin q of
-            (_, q') | size q' > 10000 -> error "queue grew too big"
-            ((t, s), _) | s == goal -> t
-            ((t, s), q') | not $ isFastest seen (t, s) -> bfs e q' seen
-            ((t, s), q') ->
-                let State (x, y) _ = s
+      bfs e q seen = case deleteFindMin q of
+        (_, q') | size q' > 10000                  -> error "queue grew too big"
+        ((t, s), _) | s == goal                    -> t
+        ((t, s), q') | not $ isFastest seen (t, s) -> bfs e q' seen
+        ((t, s), q') ->
+          let State (x, y) _ = s
 
-                    nexts =
-                        filter (isFastest seen) $ filter (isValid e') $ fmap
-                            (\m -> m (t, s))
-                            allMoves
+              nexts = filter (isFastest seen) $ filter (isValid e') $ fmap
+                (\m -> m (t, s))
+                allMoves
 
-                    seen'  = see seen t s
-                    queue' = enqueueAll nexts q'
+              seen'  = see seen t s
+              queue' = enqueueAll nexts q'
 
-                    e'     = explore (x + 1, y) $ explore (x, y + 1) e
-                in  bfs e' queue' seen'
-    in  bfs e0 q0 seen0
+              e'     = explore (x + 1, y) $ explore (x, y + 1) e
+          in  bfs e' queue' seen'
+  in  bfs e0 q0 seen0

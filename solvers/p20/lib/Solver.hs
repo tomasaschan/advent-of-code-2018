@@ -1,8 +1,8 @@
 module Solver where
 
-import qualified Data.Map as Map
-import Parse
-import Domain
+import qualified Data.Map                      as Map
+import           Parse
+import           Domain
 
 exploreBase :: String -> Explored
 exploreBase = explore . createMap . path
@@ -14,10 +14,17 @@ a :: [String] -> String
 a = show . maximum . distances . exploreBase . head . stripComments
 
 b :: [String] -> String
-b = show . length . filter (>=1000) . distances . exploreBase . head . stripComments
+b =
+  show
+    . length
+    . filter (>= 1000)
+    . distances
+    . exploreBase
+    . head
+    . stripComments
 
 stripComments :: [String] -> [String]
 stripComments = filter (not . isComment)
-  where
-    isComment ('#':_) = True
-    isComment _       = False
+ where
+  isComment ('#' : _) = True
+  isComment _         = False
