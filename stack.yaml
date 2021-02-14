@@ -23,10 +23,12 @@ packages:
   - solvers/p20
   - solvers/p21
   - solvers/p22
+  - solvers/p23
   # PROBLEM
 extra-deps:
   - graphite-0.9.8.0
   # - graphviz-2999.20.0.3
+  - parsec3-numbers-0.1.0
   - PSQueue-1.1.0.1
   - Unique-0.4.7.8
 flags: {}
